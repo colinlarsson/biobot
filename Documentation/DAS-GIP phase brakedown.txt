@@ -1,0 +1,140 @@
+Phase-By-Phase Explanation (0-16)
+
+Phase 0: Initializing Start
+Purpose: Marks the start of the automatation workflow.
+* Logs that the script has started.
+* Prepares interval variables or memory as needed.
+* Advances directly to Phase 1.
+
+Phase 1: Wait for Inoculation to Start
+Purpose: Waits until the process has officially started.
+* Monitors p.InoculationTime_H (hours since inoculation).
+* Once it's > 0, logs initialization message.
+* Transitions to Phase 2 to begin feed logic.
+
+Phase 2: Feed Preparation & Counter Increment
+Purpose: Set up for the feed event.
+* Deactivates all pumps (A, C, D).
+* Normal mode (p.OfflineM = 0):
+	* If P.InoculationTime_H has reached Feed_Time(s(5)+1), it:
+		* Increments s(5) (main feed counter).
+		* Increments s(7) (feed B counter).
+* Manual override mode (p.OfflineM = 1):
+	* Allows user to control the feed step via p.OfflineN, p.OfflineO.
+* Moves to Phase 3 to assign parameters.
+
+Phase 3: Assign Feed Targets & Glucose Sample Check
+Purpose: Load target values for current feed event.
+* s(5) used as index for:
+	* Feed_Time -> stored in s(6)
+	* Major_Feed_TargetWeight_Value -> stored in s(4)
+	* FeedB_VolumeTarget_Value -> stored in s(9)
+* Saves p.VDPV (pump D totalizer) into s(8) for comparison later.
+* If procDay > 0 (Not process day 0):
+	* Checks if user confirmed glucose sample (p.offlineA = procDay).
+	* If confirmed, go to Phase 5.
+	* If not confirmed, go to Phase 4.
+* If procDay = 0: skip check, go to Phase 5.
+
+Phase 4: Wait for Glucose Sample Confirmation
+Purpose: Wait for operator confirmation that glucose sample was taken.
+* If confirmed (p.offlineA = procDay), go to Phase 5.
+* If not, but still within 8 hrs of feed time (s(6)), remain here.
+* If 8 hr window missed, warn and proceed to Phase 5.
+
+Phase 5: Wait for Feed Time (Start Feed B)
+Purpose: Wait until it's time to begin Feed B (volumetric).
+* Waits until p.InoculationTime_H > s(6).
+* If s(9) (Feed B target volume) > 0:
+	* Proceed to Phase 6.
+* If s(9) = 0: Skip, go to Phase 7.
+
+Phase 6: Feed B (Pump D, Volumetric)
+Purpose: Dispense a set volume using Pump D.
+* Activates Pump D (p.pumpDActive = True).
+* Sets:
+	* Pump speed p.FDSP = FeedB_FlowRate
+	* Calibration p.FDCal = FeedB_FCal
+* Monitors p.VDPV unti; it reaches:
+	* s(8) + s(9) (target totalizer value)
+* When done:
+	* Log completion.
+	* Deactivate pump.
+	* Move to Phase 7.
+
+Phase 7: Post-Feed B Setup / Record Feed A Start Weight
+Purpose: Prep for Feed A (gravimetric).
+* Deactivates Pump D.
+* Updates s(1) with Scale_Weight(1) - "zero" weight of Feed A bottle.
+* If feed is comp;ete or invalid, loop back to Phase 2.
+* Otherwise, continue to Phase 8.
+
+Phase 8: Record Feed A Interval Start Weight
+Purpose: Record weight just before Feed A starts.
+* Records s(2) from Scale_Weight(2) (interval start weight).
+* Waits for p.InoculationTime_H > s(6).
+* If s(4) (target weight for Feed A) > 0 -> got to Phase 9.
+* If 0 -> skip to Phase 10.
+
+Phase 9: Feed A (Pump C, Gravimetric)
+Purpose: Deliver a specific weight of Feed A.
+* Continuously updates s(3) from Scale_Weight(3) (current weight).
+* Activates Pump C.
+* Calculates how much has been dispensed:
+	MajorFeed_Fed = s(2) - s(3)
+* If within 75% of target (s(4)), reduce flow rate.
+* If feed target reached -> stop pump, go to Phase 10.
+* If manual reset triggered (p.offlineO = 2), go back to Phase 2.
+
+Phase 10: Glucose Feed Decision
+Purpose: Determine if Glucose feed is required.
+* If procDay = 0 -> skip, go to Phase 15.
+* If sample confirmed (p.offlineA - procDay) -> Phase 12.
+* If not confirmed -> prompt user, go to Phase 11.
+
+Phase 11: Wait or Skip Glucose
+Purpose: Handle unconfirmed glucose sample.
+* Waits for confirmation.
+* If confirmed -> Phase 12.
+* If deadline missed -> warn and jump to Phase 14.
+
+Phase 12: Record Glucose Start Weight & Target
+Purpose: Setup for glucose feed.
+* Records:
+	* s(10) = Scale_Weight(4) (interval start)
+	* s(12) = p.offlineB (target weight entered by user)
+* When time reached, move to Phase 13
+
+Phase 13: Glucose Feed Pre-Check
+Purpose: Final check before glucose delivery.
+* If s(12) = 0 -> skip, go to Phase 15
+* If > 0 -> proceed to Phase 14
+
+Phase 14: Glucose Feed (Pump A, Gravimetric)
+Purpose: Dispense Glucose to match target weight.
+* Logs start of feed.
+* Continuously update s(11) = Scale_Weight(5)
+* Calculates:
+	glucoseFeed_Fed = s(10) - s(11)
+* Slows down pump if 75% of s(12) is reached.
+* Once glucose delivered -> log, deactivate Pump A -> Phase 15
+* Manual reset option with p.offlineC = 2
+
+Phase 15: Wrap-Up & Loop
+Purpose: Finish current feed event.
+* Deactivates Pump A.
+* Logs amount of glucose delivered.
+* Returns to Phase 2 for next scheduled feed event (increment counter).
+
+Phase 16: STOP (Manual or Emergency)
+Purpose: Hard stop condition.
+* Deactivates all pumps.
+* Not part of normal flow - likely invoked manually.
+
+How It All Works Together
+Each full cycle:
+1. Feed B (Volumetric) ->
+2. Feed A (Gravimetric) ->
+3. Glucose (Gravimetric, if needed)
+Each phase is tightly coupled to specific scale or pump variables, which ensures accurate and timed feeding without operator intervention -
+- except where explicitly allowed (manual overrides or glucose confirmations).

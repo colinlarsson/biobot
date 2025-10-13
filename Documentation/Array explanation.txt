@@ -1,0 +1,47 @@
+Feed Arrays: Indices 1-12
+These arrays control the scheduled feed events, with one feed event per index. Each index (1-12) represents a specific scheduled feed during the bioreactor run.
+so,
+
+Index (1-12)                                 Represents feed event #
+1                                            First scheduled feed
+2                                            Second scheduled feed
+...                                          ...  
+12                                           Twelfth (last) feed
+
+These arrays include:
+* Feed_Time(1-12) - When to trigger each feed (in hours)
+* Major_Feed_TargetWeight_Value(1-12) - Target grams for Major Feed A (Pump C)
+* FeedB_VolumeTarget_Value(1-12) - Target mL for Feed B (Pump D)
+
+So for example:
+Feed_Time(2) = 2/60                          ' Start second feed at 2 minutes
+Major_Feed_TargetWeight_Value(2) = 30        ' Deliver 30 g of Feed A
+FeedB_VolumeTarget_Value(2) = 3              ' Deliver 3 mL of Feed B
+
+State Array s() - Indices 0-12 and 13-22
+This is your persistent runtime state, crucial for coordination between script cycles. DASGIP scripts loop rapidly, so s() holds current process values between loops.
+s(i)                         Meaning
+s(0)                         Reserved/unused
+s(1)                         Feed A bottle "time zero" weight (used in Phase 7)
+s(2)                         Feed A bottle weight at the start of the current feed interval
+s(3)                         Feed A bottle current weight (during feeding)
+s(4)                         Target Feed A weight for current event
+s(5)                         Feed A event counter (1-12), used to index feed arrays
+s(6)                         Feed start time (hours), from Feed_Time(s(5))
+s(7)                         Feed B even counter (should match s(5))
+s(8)                         Starting value of Pump D totalizer (P.VDPV) for volumetric Feed B
+s(9)                         Target volume (mL) for Feed B
+s(10)                        Glucose bottle weight at the start of interval
+s(11)                        Current glucose bottle weight
+s(12)                        Target glucose feed weight (entered by user)
+s(13-22)                     Declared but unused by the script logic seen
+These values are updated and checked as the script moves through its 16-phase logic engine.
+
+So, summary:
+* Arrays indexed 1-12 are feed scheduling arrays - one slot per planned event.
+* s(1) to s(2) are runtime memory slots, tracking weights, targets, and phase-related values for each stage.
+* s(5) and s(7) drive the indexing across all the feed event arrays (like counters pointing to the current feed in progress).
+
+Additional information:
+* s(5) is the master index for the current feed event.
+* Each set of Feed_Time , TargetWeight , and TargetVolume arrays are designed to align by index with that counter.

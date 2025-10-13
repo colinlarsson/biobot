@@ -1,0 +1,141 @@
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autofeed Form</title>
+  <style>
+        body {
+            background: #f3f6fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+        }
+        .card {
+            background: #fff;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            border-radius: 18px;
+            padding: 36px 40px 30px 40px;
+            width: 100%;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #2a3b4c;
+        }
+        .form-row {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .form-row label {
+            width: 140px;
+            font-weight: 500;
+            color: #2a3b4c;
+        }
+        .form-row input[type="text"],
+        .form-row input[type="number"] {
+            width: 30%;
+            padding: 7px 10px;
+            border: 1px solid #cfd8dc;
+            border-radius: 6px;
+            font-size: 16px;
+            background: #f8fafc;
+            margin-left: 10px;
+        }
+        table {
+            width: 90%;
+            border-collapse: collapse;
+            margin-top: 40px;
+            margin-bottom: 60px;
+            background: #f8fafc;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        th, td {
+            border: 1px solid #e0e6ed;
+            padding: 6px 8px;
+            text-align: center;
+        }
+        th {
+            background: #e3eaf2;
+            color: #2a3b4c;
+            font-weight: 600;
+        }
+        input[type="button"], .submit-btn {
+            display: block;
+            margin: 28px auto 0 auto;
+            padding: 10px 36px;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+            cursor: pointer;
+            transition: background-color 0.18s;
+            margin-bottom: 40px;
+        }
+        input[type="button"]:hover, .submit-btn:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Autofeed Form</h2>
+        <form id="myForm" autocomplete="off">
+            <div class="form-row">
+                <label for="name">Name:</label>
+                <input type="text" id="name" value="Name..." required>
+            </div>
+            <div class="form-row">
+                <label for="experimentId">Experiment ID:</label>
+                <input type="text" id="experimentId" value="706R020725..." required>
+            </div>
+            <div class="form-row">
+                <label for="brxId">BRX ID:</label>
+                <input type="text" id="brxId" value="H1-4" required>
+            </div>
+            <div class="form-row">
+                <label for="sampledelay">Sample Delay [hrs]:</label>
+                <input type="number" id="sampledelay" value="4" required>
+            </div>
+            <table>
+                <tr>
+                    <th>Day</th>
+                    <th>Feed Time [hrs]</th>
+                    <th>Feed A [g]</th>
+                    <th>Feed B [mL]</th>
+                </tr>
+                <script>
+                    // Generate 12 rows for days 1-12
+                    const feedTimes = [24,48,72,96,120,144,168,192,216,240,264,288];
+                    const feedA = [0,45,0,90,0,120,0,150,0,150,0,0];
+                    const feedB = [0.0,1.5,0.0,3.0,0.0,4.5,0.0,6.0,0.0,7.5,0.0,0.0];
+                    for(let i=1; i<=12; i++) {
+                        document.write('<tr>');
+                        document.write('<td>Day ' + (i<10?'0':'') + i + '</td>');
+                        document.write('<td><input type="number" id="day'+i+'_feedTimes" value="'+feedTimes[i-1]+'" required></td>');
+                        document.write('<td><input type="number" id="day'+i+'_feedA" value="'+feedA[i-1]+'" required></td>');
+                        document.write('<td><input type="number" id="day'+i+'_feedB" value="'+feedB[i-1]+'" required></td>');
+                        document.write('</tr>');
+                    }
+                </script>
+            </table>
+            <input class="submit-btn" type="button" value="Submit" onclick="generateTextFile()">
+        </form>
+    </div>
+    <script>
+        // ...existing generateTextFile() function...
+        // You can copy your function here, just ensure IDs match.
+    </script>
+</body>
+
+</html>
