@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Autofeed Form</title>
+  <style>
+    body {
+      background: #f3f6fa;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+      /* Positioning context for the Feed Time cells (2nd column in tbody) */
+    table tbody td:nth-child(2) {
+    position: relative;
+    }
+
+    /* Absolutely position the +24 button inside the cell */
+    .plus24-btn {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
+        display: inline-flex;         /* ensure horizontal layout */
+        align-items: center;          /* vertical centering */
+        gap: 6px;                     /* space between text and icon */
+        padding: 4px 12px 4px;
+        min-width: 50px;
+        font-size: 12px;
+        border: 1px solid #0e1d36;
+        background: #3b82f6;
+        color: #0e1d36;
+        border-radius: 7px;
+        cursor: pointer;
+        z-index: 1;
+        font-weight: 580;
+        font-family: arial;
+        color: #fff;
+    }
+    .plus24-btn svg {
+        width: 14px;
+        height: 14px;
+        display: block;
+    }
+    /* Ensure the input text doesn't go under the button */
+    table tbody td:nth-child(2) input[type="number"] {
+        padding-right: 5px; /* space for the button */
+        box-sizing: border-box;
+        width: 70px; /* adjust width to accommodate button */
+
+    }
+     
+    .plus24-btn:hover { background: #2d56dd; }
+    .card {
+      background: #fff url('https://publish-01.obsidian.md/access/540c9026a277beea165c910ca7b9dc15/Files/autologo.png') no-repeat right 24px top 24px;
+      background-size: 350px auto;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+      border-radius: 18px;
+      padding: 30px 40px 30px 40px;
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto;
+      
+    }
+    .card-meta {
+        position: absolute;
+        right: 24px;
+        bottom: 50px;
+        font-size: 12px;
+        color: #6b7280;     
+        opacity: 0.8;       
+        pointer-events: none;
+    }
+    /* Remove spinners from all number inputs (Chrome, Safari, Edge) */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #2a3b4c;
+      font-family: arial;
+      font-size: 32px;
+    }
+    .form-row {
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+    }
+    .form-row label {
+      width: 160px;
+      font-weight: 600;
+      color: #2a3b4c;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .form-row input[type="text"],
+    .form-row input[type="number"] {
+      width: 30%;
+      padding: 7px 10px;
+      border: 1px solid #cfd8dc;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #f8fafc;
+      margin-left: 10px;
+    }
+    #sampledelay {
+        background-color: #f8fafc; 
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>');
+        background-repeat: no-repeat;
+        background-position: 10px center;  /* icon position */
+        background-size: 16px 16px;        /* icon size */
+        padding-left: 36px;                /* space for the icon */
+    }
+    .form-row input#sampledelay {
+        width: 50px; /* adjust to taste (e.g., 100px, 140px) */
+    }
+    table {
+      width: 95%;
+      border-collapse: collapse;
+      margin-top: 60px;
+      margin-bottom: 24px;
+      background: #f8fafc;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-left: auto;
+      margin-right: auto;
+      font-family: arial;
+    }
+    table td:first-child {
+        font-size: 14px; 
+    }
+    table td input[type="number"] {
+        width: 90px;         
+        max-width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #7a7a7a;
+        border-radius: 4px;
+        padding: 1px 0px 1px 5px;
+    }
+    th, td {
+        border: 1px solid #e0e6ed;
+        padding: 6px 8px;
+        text-align: center;
+    }
+    table tbody td:nth-child(2),
+    table tbody td:nth-child(3),
+    table tbody td:nth-child(4) {
+    text-align: left;
+    padding-left: 30px; /* small offset from the left edge */
+    }
+
+    th {
+      background: #e3eaf2;
+      color: #2a3b4c;
+      font-weight: 600;
+    }
+    input[type="button"], .submit-btn {
+      display: block;
+      margin: 28px auto 0 auto;
+      padding: 10px 36px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+      cursor: pointer;
+      transition: background-color 0.18s;
+      margin-bottom: 30px;
+    }
+    input[type="button"]:hover, .submit-btn:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Autofeed Form</h2>
+
+    <form id="myForm" autocomplete="off">
+      <div class="form-row">
+        <label for="name">Name:</label>
+        <input type="text" id="name" placeholder="Name e.g. Colin Larsson" required>
+      </div>
+
+      <div class="form-row">
+        <label for="experimentId">Experiment ID:</label>
+        <input type="text" id="experimentId" placeholder="e.g. 706R020725" required>
+      </div>
+
+      <div class="form-row">
+        <label for="brxId">BRX ID:</label>
+        <input type="text" id="brxId" placeholder="e.g. H1-4" required>
+      </div>
+
+      <div class="form-row">
+        <label for="sampledelay">Sample Delay [hrs]:</label>
+        <input 
+            type="number" 
+            step="any" 
+            id="sampledelay" 
+            value="4" 
+            required
+            title="Delay before feed starts to allow for sample confirmation (in hours). Example: 4 = start 4 hours after the scheduled time.">
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Feed Event</th>
+            <th>Feed Time [hrs]</th>
+            <th>Feed A [g]</th>
+            <th>Feed B [mL]</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+
+      <input class="submit-btn" type="button" value="Submit" onclick="generateTextFile()">
+    </form>
+    <div class="card-meta">Colin Larsson — Form v5.0</div>
+  </div>
+
+  <!-- VB Template with placeholders:
+       - {{SAMPLE_DELAY}}
+       - {{FEED_TIMES}}
+       - {{FEED_A_VALUES}}
+       - {{FEED_B_VALUES}}
+  -->
+  <script type="text/plain" id="vb-template">
+'Abbvie | Dynamic time trigger and gravimetric response feed | JDL CL 03-13-2025
+'Version 4.19 Last Update 2025-06-30
+
+'A = Glucose volumetric f.cal = 24
+'B = Base not controlled
+'C = Feed A gravimetric f.cal = 15.92
+'D = Feed B volumetric f.cal = 105
+
+'*************************************************************************************************************
+'Feed A 
+Dim MajorFeed_Fed as Double '[g]
+Dim glucoseFeed_Fed as Double '[g]
+
+'BalanceState Function
+'Case 0, Case 1, Case 7, Case 8, Case 9, Case 12, Case 14
+Dim State As Integer = p.BalanceAState()
+
+Dim Scale_Weight(6) as Double 
+Scale_Weight(1) = p.MAPV 'time zero bottle weight 
+Scale_Weight(2) = p.MAPV 'interval starting bottleweight 
+Scale_Weight(3) = p.MAPV 'current weight feed A
+Scale_Weight(4) = p.MAPV 'glucose interval starting bottleweight
+Scale_Weight(5) = p.MAPV 'current weight glucose
+
+'Process Day
+Dim procDay As Integer 'Day used for logmessages and acknowledge glucose sample
+
+'Calculation for Process Day
+Dim calculatedProcDay As Integer
+calculatedProcDay = int((p.inoculationTime_H + 8) / 24)
+
+'Process day logic
+If calculatedProcDay < 0 Then
+    procDay = 0
+Else
+    procDay = calculatedProcDay
+End If
+
+'Delay in hours before the feed starts to allow for sample confirmation
+Dim sampleDelay as Double = {{SAMPLE_DELAY}}
+
+Dim Feed_StartTime as Double = 0 'Feed Start Time in hours, initialized to 0
+
+'All Feed Times in hours
+Dim Feed_Time(13) as Double
+{{FEED_TIMES}}
+
+'Major Feed active target weight 
+Dim Major_Feed_TargetWeight as Double
+
+'Major Feed - pump C
+Dim Major_Feed_TargetWeight_Value(13) as Double 
+{{FEED_A_VALUES}}
+
+'Feed B active target volume
+Dim FeedB_VolumeTarget as Double = 0
+
+'Feed B Target Volumes - pump D
+Dim FeedB_VolumeTarget_Value(13) as Double 
+{{FEED_B_VALUES}}
+
+'Pump calibrations
+Dim pumpC_FCal as Double 'Feed A gravimetric
+Dim pumpD_FCal as Double 'Feed B volumetric
+Dim pumpA_FCal as Double 'Glucose volumetric
+
+pumpC_FCal = 15.92
+pumpD_FCal = 105
+pumpA_FCal = 24
+
+'Major Feed SetPoint (SP) variables
+Dim Major_Feed_SP as Double = 250 '[mL/H] - starting pump flow setpoint 
+Dim Major_Feed_Percent_Value as Double = 0.25 'reduce pump flow rate to 25% of SP 
+Dim Major_Feed_SP_percent as Double = Major_Feed_SP * Major_Feed_Percent_Value  'stores the new reduced pump flow sp
+Dim cut_pumpValue_Percent as Double = 0.75 'slow down when reached 75% of target value 
+Dim Major_Feed_Counter as Double = 0 
+
+'Glucose feed 
+Dim Glucose_Feed_SP as Double = 150
+Dim Glucose_Feed_Percent_Value as Double = 0.25 'reduce pump flow rate to 25% of SP 
+Dim Glucose_Feed_SP_percent as Double = Glucose_Feed_SP * Glucose_Feed_Percent_Value  'stores the new reduced pump flow sp
+Dim Glucose_Cut_pumpValue_Percent as Double = 0.75 'slow down when reached 75% of target value 
+
+'Feed B 
+Dim FeedB_FlowRate as Double = 15 '[mL/H]
+Dim FeedB_FCal as Double = 105 '[1/mL]
+Dim FeedB_Counter as Double = 0 '#
+Dim FeedB_CounterIncrement as Double = 0
+Dim FeedB_Totalizer as Double = 0'[mL]
+Dim FeedB_Totalizer_Count as Double = 0 
+
+'Define array - indexing starts at 0.
+If s is Nothing then
+    Dim a(22) as Double
+    a(1) = 0 'time zero bottle weight 
+    a(2) = 0 'interval starting bottleweight 
+    a(3) = 0 'current weight 
+    a(4) = Major_Feed_TargetWeight
+    a(5) = Major_Feed_Counter
+    a(6) = Feed_StartTime 'initialized to 0
+    a(7) = FeedB_Counter 'initialized to 0
+    a(8) = FeedB_Totalizer 'initialized to 0
+    a(9) = FeedB_VolumeTarget 'initialized to 0
+    a(10) = 0 'Glucose interval starting bottleweight
+    a(11) = 0 'current weight for glucose
+    a(12) = 0 'user input glucose
+    s = a
+End If
+
+If P isNot Nothing Then
+With P 
+
+    'interval starting weight minus current weight
+    MajorFeed_Fed = (s(2) - s(3)) 
+    'glucose feed starting weight minus current weight
+    glucoseFeed_Fed = (s(10) - s(11)) 
+
+    .intA = .phase 'phase
+    .intB = .runtime_H - .phaseStart_H 'phase time 
+    .intC = s(5) 'Feed Counter
+    .intD = procDay 'feed b counter 
+    .intE = s(4) 'major feed target weight  
+    '.intF assigned later in feed A completion
+    .intG = s(12) 'glucose target
+    .intH = s(10) - s(11) 'glucose fed
+    .intI = s(9) + s(8) 'feed b volume target
+    .IntJ = s(1) 'static 
+    .intK = s(2) 'static interval feed
+    .intL = s(3) 'dynamic interval
+    .intQ = procDay
+    .intS = s(9)
+
+    'Prevents time remaining intT from being negative
+    Dim timeRemaining As Double = s(6) - .inoculationTime_H
+    If timeRemaining < 0 Then
+        .intT = 0
+    Else
+        .intT = timeRemaining
+    End If
+
+'_____________________________________________________________________________________________________________
+Static lastState As Integer
+If State <> lastState Then
+    Select Case State
+        Case 0
+            .logalarm("██████ Scale is inactive ██████")
+        Case 1
+            .logalarm("██████ Scale is idle ██████")
+        Case 2
+            .logMessage("██████ Scale is busy ██████")
+        Case 3
+            .logalarm("██████ Scale is in manual mode ██████")
+        Case 4
+            .logalarm("██████ Scale is calibrating... ██████")
+        Case 5
+            .logalarm("██████ Scale has an error ██████")
+    End Select
+    lastState = State
+End If
+
+'_____________________________________________________________________________________________________________
+
+Select Case .phase
+    Case 0 'Workflow Start 
+        .logmessage("██████████████-----AUTOFEED v.4.19 LAUNCHING...")
+        .phase = .phase + 1
+
+'==========================================================================================
+' PHASE 1 - Start Inoculation Timer
+'==========================================================================================
+
+    Case 1 'Start Inoculation Timer  
+
+        'set pump calibration values once at start
+        If .FDCal <> pumpD_FCal Then
+            .FDCal = pumpD_FCal
+        End If
+        If .FCCal <> pumpC_FCal Then
+            .FCCal = pumpC_FCal
+        End If
+
+        If .InoculationTime_H > 0 And (.runtime_H - .phaseStart_H) > 0.1 / 60 Then
+            .logmessage("██████████████----INOC TIMER STARTED FOR UNIT#: " & .unit & ". Pumps Calibrated ----")
+            .phase = .phase + 1
+        End If
+
+'==========================================================================================
+' PHASE 2 - Counter Management and totalizer reset
+'==========================================================================================
+'sits here prior to feed 1
+    Case 2
+        .pumpCActive = False 
+        .pumpDActive = False 
+        .pumpAActive = False
+
+        'reset totalizers for check
+        If .vcpv <> 0 Then .SetVCPV(0)
+        If .vapv <> 0 Then .SetVAPV(0)
+
+        If .OfflineM = 0 Then 'Auto progression
+            If .InoculationTime_H > Feed_Time(1) And (.runtime_H - .phaseStart_H) > 0.1/60 Then
+                s(5) = s(5) + 1 'Major Feed Counter
+                s(7) = s(7) + 1 'Feed B Counter
+                .phase = .phase + 1
+            End If
+        ElseIf .OfflineM = 1 And .OfflineN > 0 And .OfflineO = 0 Then
+            s(5) = .OfflineN + s(5) + 1
+            s(7) = .OfflineN + s(7) + 1
+            .phase = .phase + 1
+        ElseIf .OfflineM = 1 And .OfflineN > 0 And .OfflineO = 1 Then
+            s(5) = s(5) + 1
+            s(7) = s(7) + 1
+            .phase = .phase + 1
+        End If
+
+'==========================================================================================
+' PHASE 3 - Assign New Values for Interval, looks for sample confirmation
+'==========================================================================================
+
+    Case 3 'turn off pump and assign new values for interval time and specified target weight to feed
+
+        'Major feed - pump C
+        If s(5) = 1 Then 
+            Feed_StartTime = Feed_Time(1)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(1)
+        ElseIf s(5) = 2 Then 
+            Feed_StartTime = Feed_Time(2) 
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(2)
+        ElseIf s(5) = 3 Then
+            Feed_StartTime = Feed_Time(3)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(3)
+        ElseIf s(5) = 4 Then
+            Feed_StartTime = Feed_Time(4)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(4)
+        ElseIf s(5) = 5 Then
+            Feed_StartTime = Feed_Time(5)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(5)
+        ElseIf s(5) = 6 Then
+            Feed_StartTime = Feed_Time(6)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(6)
+        ElseIf s(5) = 7 Then 
+            Feed_StartTime = Feed_Time(7) 
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(7)
+        ElseIf s(5) = 8 Then
+            Feed_StartTime = Feed_Time(8)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(8)
+        ElseIf s(5) = 9 Then
+            Feed_StartTime = Feed_Time(9)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(9)
+        ElseIf s(5) = 10 Then
+            Feed_StartTime = Feed_Time(10)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(10)
+        ElseIf s(5) = 11 Then
+            Feed_StartTime = Feed_Time(11)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(11)
+        ElseIf s(5) = 12 Then
+            Feed_StartTime = Feed_Time(12)
+            Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(12)
+        End If
+
+        'Feed B (pump D) | s(7) = counter, s(8) = totalizer, s(9) = volume target
+        If s(7) = 1 Then 
+            FeedB_Totalizer = .VDPV
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(1)
+        ElseIf s(7) = 2 Then
+            FeedB_Totalizer = .VDPV    
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(2)
+        ElseIf s(7) = 3 Then
+            FeedB_Totalizer = .VDPV          
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(3)
+        ElseIf s(7) = 4 Then
+            FeedB_Totalizer = .VDPV  
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(4)
+        ElseIf s(7) = 5 Then
+            FeedB_Totalizer = .VDPV  
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(5)
+        ElseIf s(7) = 6 Then
+            FeedB_Totalizer = .VDPV  
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(6)
+        ElseIf s(7) = 7 Then
+            FeedB_Totalizer = .VDPV    
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(7)
+        ElseIf s(7) = 8 Then
+            FeedB_Totalizer = .VDPV          
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(8)
+        ElseIf s(7) = 9 Then
+            FeedB_Totalizer = .VDPV  
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(9)
+        ElseIf s(7) = 10 Then
+            FeedB_Totalizer = .VDPV  
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(10)
+        ElseIf s(7) = 11 Then
+            FeedB_Totalizer = .VDPV  
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(11)
+        ElseIf s(7) = 12 Then
+            FeedB_Totalizer = .VDPV  
+            FeedB_VolumeTarget = FeedB_VolumeTarget_Value(12)
+        End If
+
+        'Store selections
+        s(4) = Major_Feed_TargetWeight
+        s(6) = Feed_StartTime
+        s(8) = FeedB_Totalizer
+        s(9) = FeedB_VolumeTarget
+
+        'Sample confirmation logic
+        If procDay <= 0 Then
+            .intT = s(6) - .inoculationTime_H
+            .phase = .phase + 2
+        ElseIf .offlineA <> procDay And .inoculationTime_H < (s(6) + sampleDelay) And ((.runtime_H - .PhaseStart_H) > 0.1 / 60) Then
+            .logwarning("██ - Phase: 3 - ██ - Day: " & (procDay + 1) & " - ██ - Unit #: " & .unit & ". - ████ - Enter Glucose Target in Offline Field, then set Day to the current Process Day.")
+            .intT = s(6) - .inoculationTime_H
+            .phase = .phase + 1
+        ElseIf .offlineA = procDay And .inoculationTime_H > s(6) Then
+            .intT = s(6) - .inoculationTime_H
+            .logmessage("██ - Phase: 3 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Sampling Confirmed: Next Feeding Event in " & formatNumber(.intT, 2) & " Hrs")
+            .logmessage("██ - Phase: 3 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Feed Targets: " & s(9) & " [mL] FB. " & s(4) & " [g]. FA and " & .offlineB & " [g] Glucose.")
+            .phase = .phase + 2
+        End If
+
+'==========================================================================================
+' PHASE 4 - Waiting for Sample Confirmation
+'==========================================================================================
+
+    Case 4
+        If .offlineA <> procDay And .inoculationTime_H > (s(6) + sampleDelay) Then
+            .logwarning("Phase 4: Sample not verified, feeding late, no glucose entered")
+            .phase = .phase + 1
+        ElseIf .offlineA = procDay And .inoculationTime_H > s(6) Then
+            .logmessage("██ - Phase: 4 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Sampling Confirmed: Next Feeding Event in " & formatNumber(.intT, 2) & " Hrs")
+            .logmessage("██ - Phase: 4 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Feed Targets: " & s(9) & " [mL] FB. " & s(4) & " [g]. FA and " & .offlineB & " [g] Glucose.")
+            .phase = .phase + 1
+        End If
+
+'==========================================================================================
+' PHASE 5 - Waiting for Feed B to Start
+'==========================================================================================
+
+    Case 5
+        If ((.runtime_H - .PhaseStart_H) > 0.1/60) And .inoculationTime_H > s(6) And s(9) <> 0 Then
+            .logmessage("Phase: 5.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---Feed B Starting: " & s(9) & " [mL] to be fed.")
+            .phase = .phase + 1
+        ElseIf ((.runtime_H - .PhaseStart_H) > 0.1/60) And .inoculationTime_H > s(6) And s(9) <= 0 Then
+            .logmessage("Phase: 5.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---No Feed B To be fed, skipping to Feed A.")
+            .phase = .phase + 2
+        End If
+
+'==========================================================================================
+' PHASE 6 - Feed B Start
+'==========================================================================================
+
+    Case 6
+        If .inoculationTime_H > s(6) Then 
+            .pumpDActive = True 'turn feed B on 
+        End If 
+
+        If s(7) <= 12 Then
+            If .VDPV <= s(8) + s(9) Then
+                .FDSP = FeedB_FlowRate
+                .FDCal = FeedB_FCal
+            Else
+                .logmessage("██ - Phase: 6 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Feed B Finished: " & s(9) & " [mL] Fed")
+                .phase = .phase + 1
+            End If 
+        ElseIf s(7) > 12 AndAlso ((.runtime_H - .PhaseStart_H) > 0.1/60) Then
+            .phase = 2
+        End If 
+
+'==========================================================================================
+' PHASE 7 - Feed B Off, Next Step
+'==========================================================================================
+
+    Case 7 
+        .pumpDActive = False
+        s(1) = Scale_Weight(1)
+
+        If .inoculationTime_H > Feed_Time(12) And s(4) > Major_Feed_TargetWeight_Value(12) Then 
+            .phase = 2
+        Else
+            .phase = .phase + 1
+        End If 
+
+'==========================================================================================
+' PHASE 8 - Prepare for feed A
+'==========================================================================================
+
+    Case 8
+        s(2) = Scale_Weight(2)
+        s(3) = s(2) 'Initialize end weight to prevent negative display if feed is skipped
+        If .InoculationTime_H > s(6) AndAlso s(4) <> 0 AndAlso (.runtime_H - .phaseStart_H) > 0.1/60 Then
+            .phase = .phase + 1
+        ElseIf s(4) = 0 Then
+            .logmessage("Phase: 8.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---No Feed A entered, skipping Feed A phase.")
+            .phase = .phase + 2
+        End If
+
+'==========================================================================================
+' PHASE 9 - Feed A Runs
+'==========================================================================================
+
+    Case 9
+        s(3) = Scale_Weight(3)
+        .pumpCActive = True
+        
+        If abs(MajorFeed_Fed) > (s(4) * cut_pumpValue_Percent) Then  
+            .FCSP = Major_Feed_SP_percent
+        Else
+            .FCSP = Major_Feed_SP
+        End If 
+        
+        If abs(MajorFeed_Fed) > s(4) And (.runtime_H - .phaseStart_H) > 0.1/60 Then
+            .pumpCActive = False
+            .intF = s(2) - s(3) 'Feed A Fed
+            .logmessage("██ - Phase: 9 - Day " & procDay & " - Unit #: " & .unit & ". - ██ Feed A Fed:  " & formatNumber(MajorFeed_Fed, 2) & " [g]")
+            .phase = .phase + 1
+        ElseIf (.runtime_H - .phaseStart_H) > 0.1/60 AndAlso .VCPV > (1.1 * s(4)) Then
+            .pumpCActive = False
+            .intF = .VCPV
+            .logalarm("██ - Phase: 9 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ".██ Feed A Totalizer: " & formatNumber(.VCPV, 2) & " [g] is above 110% of target weight: " & s(4) & " [g]. Stopping Feed A.")
+            .phase = .phase + 1
+        End If
+
+        If .OfflineO = 2 Then
+            .phase = 2
+        End If
+
+'==========================================================================================
+' PHASE 10 - Glucose Decision Tree
+'==========================================================================================
+
+    Case 10
+        s(10) = Scale_Weight(4)
+        s(11) = s(10)
+        If procDay = 0 Then
+            .logmessage("Phase: 10.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---No Glucose addition needed, proceeding to Phase 13.")
+            .phase = .phase + 5
+        ElseIf .offlineA <> procDay And .inoculationTime_H < (s(6) + 8) Then
+            .logwarning("██ - Phase: 10 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Enter Glucose Target in Offline Field, then set Day to the current Process Day.")
+            .phase = .phase + 1
+        ElseIf .offlineA = procDay Then
+            .phase = .phase + 2
+        End If
+
+'==========================================================================================
+' PHASE 11 - Check for sample Confirmation
+'==========================================================================================
+
+    Case 11
+        If .offlineA <> procDay And .inoculationTime_H > (s(6) + sampleDelay) Then
+            .logwarning("██ - Phase: 11 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Skipping glucose feed, sample not verified")
+            .phase = .phase + 4
+        ElseIf .offlineA = procDay Then
+            .phase = .phase + 1
+        End If
+
+'==========================================================================================
+' PHASE 12 - Record Glucose Phase Bottleweight
+'==========================================================================================
+
+    Case 12
+        s(10) = Scale_Weight(4)
+        s(11) = s(10)
+        s(12) = .offlineB
+        
+        If .InoculationTime_H > s(6) And (.runtime_H - .phaseStart_H) > 0.1/60 Then
+            .phase = .phase + 1
+        End If
+
+'==========================================================================================
+' PHASE 13 - Redundant Check
+'==========================================================================================
+
+    Case 13
+        If s(12) = 0 Then
+            .logmessage("Phase: 13.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---No glucose addition required on day: " & procDay & ". " & s(12) & " [g] was Fed")
+            .phase = .phase + 2
+        Else
+            .phase = .phase + 1
+        End If
+
+'==========================================================================================
+' PHASE 14 - Glucose Feed
+'==========================================================================================
+
+    Case 14
+        If .runtime_H - .phaseStart_H < 0.025/60 Then 
+            .logmessage("Phase: 14.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---Sampling Confirmed: " & s(12) & " [g] Glucose to be fed.")
+        End If
+
+        s(11) = Scale_Weight(5)
+        .pumpAActive = True
+        
+        If abs(glucoseFeed_Fed) > (s(12) * Glucose_Cut_pumpValue_Percent) Then
+            .FASP = Glucose_Feed_SP_percent
+        Else
+            .FASP = Glucose_Feed_SP
+        End If 
+        
+        If (abs(glucoseFeed_Fed) > s(12) And (.runtime_H - .phaseStart_H) > 0.1/60) Or s(12) = 0 Then
+            .logmessage("Phase: 14.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---Feed Counter: [" & .IntC &"]")
+            .phase = .phase + 1
+        ElseIf (.runtime_H - .phaseStart_H) > 0.1/60 And .VAPV > (1.2 * s(12)) Then
+            .pumpAActive = False
+            .logwarning("██ - Phase: 14 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Totalizer: " & formatNumber(.VAPV, 2) & " [g] is above 120% of target weight: " & s(12) & " [g]. Stopping Feed A.")
+            .Phase = .phase + 1
+        End If
+
+        If .offlineC = 2 Then 
+            .logMessage("Need to reset counter. Set to phase 2")
+            .phase = .phase + 1
+        End If
+
+'==========================================================================================
+' PHASE 15 - Wrap Up
+'==========================================================================================
+
+    Case 15
+        .pumpAActive = False
+        If .runtime_H - .phaseStart_H < 0.1/60 Then 
+            .logwarning("██ - Phase: 15 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Total Feeds: - ██ - Feed A: " & formatNumber(MajorFeed_Fed, 2) & " [g]. Feed B: " & s(9) & " [mL]. Glucose: " & formatNumber(glucoseFeed_Fed, 2) & " [g] - ██")
+            .phase = 2
+        End If
+
+    Case 16 
+        'insert stop commands 
+        .pumpCActive = False
+        .pumpDActive = False 
+        .pumpAActive = False
+End Select
+End With
+End If
+
+'Checks with logs - disable when not debugging
+'p.LogMessage("Phase: " & p.phase)
+'p.logmessage("FeedB Increment" & s(18))
+'p.logmessage("static totalizer " & s(19))
+'p.logmessage("feed b vol target " & s(20))
+'p.logmessage("active totalizer " & p.VDPV)
+'p.LogMessage("Inoc Time [h]: " & p.InoculationTime_H)
+'p.LogMessage("Phase Interval Time [h]: " & (P.runtime_H-p.PhaseStart_H))
+
+'p.LogMessage("Major Feed SP: " & Major_Feed_SP)
+'p.LogMessage("pump C SP: " & p.FCSP)
+
+'p.LogMessage("MajorFeed Fed: " & MajorFeed_Fed )
+'p.logmessage("majorfeed target weight: " & Major_Feed_TargetWeight)
+'p.LogMessage("MajorFeed Start Time: " & Major_Feed_StartTime)
+'p.LogMessage("Array0 - time zero bw: " & s(0))
+'p.LogMessage("Array1 - STATIC: " & s(1))
+'p.LogMessage("Array2 - STATIC INTERVAL: " & s(2))
+'p.LogMessage("Array3: -DYNAMIC INTERVAL" & s(3))
+'p.LogMessage("Array4: " & s(4))
+'p.LogMessage("Array5: " & s(5))
+'p.LogMessage("Array6: " & s(6))
+'p.LogMessage("Array7: " & s(7))
+'p.LogMessage("array11: " & s(11))
+'p.LogMessage("array10: " & s(10))
+'p.LogMessage("array12: " & s(12))
+  </script>
+
+  <script>
+    // Defaults
+    const defaultFeedTimes = [24,48,72,96,120,144,168,192,216,240,264,288,312,326];
+    const defaultFeedA =     [0,45,0,90,0,120,0,150,0,150,0,0,0,0];
+    const defaultFeedB =     [0.0,1.5,0.0,3.0,0.0,4.5,0.0,6.0,0.0,7.5,0.0,0.0,0.0,0.0];
+
+    // Build the table rows on load
+    const tbody = document.getElementById('rows');
+    for (let i = 1; i <= 14; i++) {
+      const tr = document.createElement('tr');
+
+      const dayTd = document.createElement('td');
+      dayTd.textContent = `Feed #${i.toString().padStart(2,'0')}`;
+      tr.appendChild(dayTd);
+
+      const tdTime = document.createElement('td');
+      const inpTime = document.createElement('input');
+      inpTime.type = 'number';
+      inpTime.step = 'any';
+      inpTime.id = `day${i}_feedTimes`;
+      inpTime.value = defaultFeedTimes[i-1];
+      inpTime.title = `Schedule a feed every day glucose may be required, and set feeds to 0 if not required`;
+      tdTime.appendChild(inpTime);
+    if (i > 1) {
+        const btnPlus24 = document.createElement('button');
+        btnPlus24.type = 'button';
+        btnPlus24.className = 'plus24-btn';
+        
+              // Insert stopwatch icon + text
+      btnPlus24.innerHTML = `
+        <span>+24</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             fill="none" stroke="white" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round"
+             class="lucide lucide-timer-icon lucide-timer" aria-hidden="true">
+          <line x1="10" x2="14" y1="2" y2="2"/>
+          <line x1="12" x2="15" y1="14" y2="11"/>
+          <circle cx="12" cy="14" r="8"/>
+        </svg>
+      `;
+        btnPlus24.title = `Adds 24hrs to Previous Feed ${i - 1} entry.`;
+        btnPlus24.addEventListener('click', () => {
+        const prev = parseFloat(document.getElementById(`day${i - 1}_feedTimes`).value);
+        const newVal = (isNaN(prev) ? 0 : prev) + 24;
+        inpTime.value = newVal;
+        inpTime.dispatchEvent(new Event('input', { bubbles: true }));
+        inpTime.focus();
+      });
+      tdTime.appendChild(btnPlus24);
+    }
+      tr.appendChild(tdTime);
+
+      const tdA = document.createElement('td');
+      const inpA = document.createElement('input');
+      inpA.type = 'number';
+      inpA.step = 'any';
+      inpA.id = `day${i}_feedA`;
+      inpA.value = defaultFeedA[i-1];
+      tdA.appendChild(inpA);
+      tr.appendChild(tdA);
+
+      const tdB = document.createElement('td');
+      const inpB = document.createElement('input');
+      inpB.type = 'number';
+      inpB.step = 'any';
+      inpB.id = `day${i}_feedB`;
+      inpB.value = defaultFeedB[i-1];
+      tdB.appendChild(inpB);
+      tr.appendChild(tdB);
+
+      tbody.appendChild(tr);
+    }
+
+    function generateTextFile() {
+      const name = document.getElementById('name').value.trim();
+      const experimentId = document.getElementById('experimentId').value.trim();
+      const brxId = document.getElementById('brxId').value.trim();
+      const sampleDelayVal = parseFloat(document.getElementById('sampledelay').value);
+
+      if (!name || !experimentId || !brxId || isNaN(sampleDelayVal)) {
+        alert('Please complete all fields with valid values.');
+        return;
+      }
+
+      // Gather arrays
+      const feedTimes = [];
+      const feedA = [];
+      const feedB = [];
+
+      for (let day = 1; day <= 14; day++) {
+        const t = parseFloat(document.getElementById(`day${day}_feedTimes`).value);
+        const a = parseFloat(document.getElementById(`day${day}_feedA`).value);
+        const b = parseFloat(document.getElementById(`day${day}_feedB`).value);
+        if ([t,a,b].some(v => isNaN(v))) {
+          alert(`Invalid entry on Day ${day}.`);
+          return;
+        }
+        feedTimes.push(t);
+        feedA.push(a);
+        feedB.push(b);
+      }
+
+      // Build VB assignments
+      const feedTimesLines = feedTimes.map((v, i) => `Feed_Time(${i+1}) = ${v}`).join('\n');
+      const feedALines = feedA.map((v, i) => `Major_Feed_TargetWeight_Value(${i+1}) = ${v}`).join('\n');
+      const feedBLines = feedB.map((v, i) => `FeedB_VolumeTarget_Value(${i+1}) = ${v}`).join('\n');
+
+      // Load template and replace placeholders
+      let vbText = document.getElementById('vb-template').textContent;
+
+      vbText = vbText.replace('{{SAMPLE_DELAY}}', sampleDelayVal);
+      vbText = vbText.replace('{{FEED_TIMES}}', feedTimesLines);
+      vbText = vbText.replace('{{FEED_A_VALUES}}', feedALines);
+      vbText = vbText.replace('{{FEED_B_VALUES}}', feedBLines);
+
+      // Heading block as VB comments
+      const heading = `'Name: ${name}
+'Experiment ID: ${experimentId}
+'BRX ID: ${brxId}
+'Sample Delay [hrs]: ${sampleDelayVal}
+
+`;
+
+      const fullText = heading + vbText;
+
+      const blob = new Blob([fullText], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${experimentId}_${brxId}_Autofeed_v4.19.vb`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
