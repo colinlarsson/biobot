@@ -57,8 +57,8 @@ Dim FeedB_VolumeTarget as Double = 0
 Dim FeedB_VolumeTarget_Value(15) as Double 
 
 'Feed A fcal (pump C) = 15.92
-'Glucose fcal (pump D) = 24
-'feed B fcal (pump A) = 105
+'Glucose fcal (pump A) = 24
+'feed B fcal (pump D) = 105
 Dim pumpC_FCal as Double
 Dim pumpD_FCal as Double
 Dim pumpA_FCal as Double
