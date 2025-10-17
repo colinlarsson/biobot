@@ -1,10 +1,10 @@
-'Abbvie | Dynamic time trigger and gravimetric response feed | JDL CL 03-13-2025
+'Autofeed for Scivario
 'Version 5.0 Last Update 2025-08-09
 
-'A = Glucose gravimetric f.cal = 24
+'E = Glucose gravimetric f.cal = 24
 'B = Base not controlled
-'C = Feed A gravimetric f.cal = 15.92
-'D = Feed B volumetric f.cal = 105
+'D = Feed A gravimetric f.cal = 15.92
+'F = Feed B volumetric f.cal = 105
 
 'Feed A 
 Dim MajorFeed_Fed as Double '[g]
@@ -26,7 +26,7 @@ Dim procDay As Integer 'Day used for logmessages and acknowledge glucose sample
 
 'Caluation for Process Day, rolls over 8 hours before inoculation time
 Dim calculatedProcDay As Integer
-calculatedProcDay = int((p.inoculationTime_H + 8) / 24)
+calculatedProcDay = p.offlineQ 'int((p.inoculationTime_H + 8) / 24)
 
 'Process day logic, 8 hours before inoculation time, the day ticks over.
 If calculatedProcDay < 0 Then
@@ -59,28 +59,28 @@ Dim FeedB_VolumeTarget_Value(15) as Double
 'Feed A fcal (pump C) = 15.92
 'Glucose fcal (pump A) = 24
 'feed B fcal (pump D) = 105
-Dim pumpC_FCal as Double
 Dim pumpD_FCal as Double
-Dim pumpA_FCal as Double
+Dim pumpF_FCal as Double
+Dim pumpE_FCal as Double
 
 ' How many scheduled events are configured (easy to change)
 Dim MaxFeeds As Integer
 
-pumpA_FCal = 24
-pumpC_FCal = 15.92
-pumpD_FCal = 105
+pumpE_FCal = 24
+pumpD_FCal = 15.92
+pumpF_FCal = 105
 
 MaxFeeds = 14
 
-sampleDelay = 4
+sampleDelay = 5/60
 
-Feed_Time(1) = 24
-Feed_Time(2) = 48
-Feed_Time(3) = 72
-Feed_Time(4) = 96
-Feed_Time(5) = 120
-Feed_Time(6) = 144
-Feed_Time(7) = 200
+Feed_Time(1) = 5/60
+Feed_Time(2) = 10/60
+Feed_Time(3) = 15/60
+Feed_Time(4) = 1
+Feed_Time(5) = 5
+Feed_Time(6) = 18
+Feed_Time(7) = 24
 Feed_Time(8) = 252
 Feed_Time(9) = 500
 Feed_Time(10) = 501
@@ -90,9 +90,9 @@ Feed_Time(13) = 504
 Feed_Time(14) = 505
 
 Major_Feed_TargetWeight_Value(1) = 20
-Major_Feed_TargetWeight_Value(2) = 0
-Major_Feed_TargetWeight_Value(3) = 15
-Major_Feed_TargetWeight_Value(4) = 30
+Major_Feed_TargetWeight_Value(2) = 25
+Major_Feed_TargetWeight_Value(3) = 10
+Major_Feed_TargetWeight_Value(4) = 22
 Major_Feed_TargetWeight_Value(5) = 96.3
 Major_Feed_TargetWeight_Value(6) = 96.3
 Major_Feed_TargetWeight_Value(7) = 96.3
@@ -104,9 +104,9 @@ Major_Feed_TargetWeight_Value(12) = 12
 Major_Feed_TargetWeight_Value(13) = 13
 Major_Feed_TargetWeight_Value(14) = 14
 
-FeedB_VolumeTarget_Value(1) = 1.2
-FeedB_VolumeTarget_Value(2) = 3
-FeedB_VolumeTarget_Value(3) = 0
+FeedB_VolumeTarget_Value(1) = .2
+FeedB_VolumeTarget_Value(2) = .2
+FeedB_VolumeTarget_Value(3) = .3
 FeedB_VolumeTarget_Value(4) = 1
 FeedB_VolumeTarget_Value(5) = 3
 FeedB_VolumeTarget_Value(6) = 0.0  
@@ -218,7 +218,7 @@ End If
 
 Select Case .phase
     Case 0 'Workflow Start 
-        .logmessage("██████████████-----AUTOFEED v.5.0 LAUNCHING...")
+        .logmessage("██████████████-----AUTOFEED Scivario Test Starting...")
         .phase = .phase + 1
 
 
@@ -252,17 +252,17 @@ Select Case .phase
     'Feed B fcal (pump D) = 105
 
     'set pump calibration values
-    If .FDCal <> pumpD_FCal Then
-        .FDCal = pumpD_FCal
-    End If
+    'If .FDCal <> pumpF_FCal Then
+     '   .FDCal = pumpF_FCal
+    'End If
 
-    If .FCCal <> pumpC_FCal Then
-        .FCCal = pumpC_FCal
-    End If
+    'If .FCCal <> pumpD_FCal Then
+      '  .FCCal = pumpD_FCal
+    'End If
 
-    If .FACal <> pumpA_FCal Then
-        .FACal = pumpA_FCal
-    End If
+    'If .FACal <> pumpE_FCal Then
+     '   .FACal = pumpE_FCal
+    'End If
 
     If .InoculationTime_H > 0 And (.runtime_H - .phaseStart_H) > 0.1 / 60 Then
         '.logmessage("██████████████----INOC TIMER STARTED FOR UNIT#: " & .unit & ". Pumps Calibrated ----")
@@ -274,9 +274,9 @@ Select Case .phase
 '==========================================================================================
 
     Case 2
-        .pumpCActive = False 
         .pumpDActive = False 
-        .pumpAActive = False
+        .pumpFActive = False 
+        .pumpEActive = False
 
         If .OfflineM = 0 Then 'Update Counters Manually, M: 1 enter reset state, N: number of steps to skip, O: step up 1. M will intercept after every feed
             If .InoculationTime_H > Feed_Time(1) And (.runtime_H - .phaseStart_H) > 0.1 / 60 Then 'waits for first feed time + 6s delay;
@@ -284,9 +284,9 @@ Select Case .phase
                 s(7) = s(7) + 1 'Feed B Counter, not currently used
                 .phase = .phase + 1
             Elseif s(5) > MaxFeeds Then 'checks if all feeds are done
-                .pumpAActive = False
-                .pumpCActive = False
+                .pumpEActive = False
                 .pumpDActive = False
+                .pumpFActive = False
                 .logmessage("All Feeds Delivered: Major=" & CInt(s(5)) & "/" & MaxFeeds & ", Feed B=" & CInt(s(7)) & "/" & MaxFeeds & ". Stopping (Phase 16).")
                 .phase = 16
             End If
@@ -368,46 +368,46 @@ Select Case .phase
 
         'Feed B | s(7) = feed B counter, s(8) = pump D totalizer, s(9) = Feed B volume target
         If s(7) = 1 Then 
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(1)
         ElseIf s(7) = 2 Then
-            FeedB_Totalizer = .VDPV    
+            FeedB_Totalizer = .VFPV    
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(2)
         ElseIf s(7) = 3 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(3)
         ElseIf s(7) = 4 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(4)
         ElseIf s(7) = 5 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(5)
         ElseIf s(7) = 6 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(6)
         ElseIf s(7) = 7 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(7)
         ElseIf s(7) = 8 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(8)
         ElseIf s(7) = 9 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(9)
         ElseIf s(7) = 10 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(10)
         ElseIf s(7) = 11 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(11)
         ElseIf s(7) = 12 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(12)
         ElseIf s(7) = 13 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(13)
         ElseIf s(7) = 14 Then
-            FeedB_Totalizer = .VDPV
+            FeedB_Totalizer = .VFPV
             FeedB_VolumeTarget = FeedB_VolumeTarget_Value(14)
         End If
 
@@ -470,12 +470,12 @@ Select Case .phase
     Case 6 'turn on pump
 
         If .inoculationTime_H > s(6) Then 
-            .pumpDActive = True 'turn feed B on 
+            .pumpFActive = True 'turn feed B on 
         End If 
 
         If s(7) <= MaxFeeds Then 'checks if above max feeds -probably not necessary
-            If .VDPV <= s(8) + s(9) Then
-                .FDSP = FeedB_FlowRate
+            If .VFPV <= s(8) + s(9) Then
+                .FFSP = FeedB_FlowRate
             Else 'ends when totalize hits value
             .logmessage("██ - Phase: 6 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Feed B Finished: " & s(9) & " [mL] Fed")
                 .phase = .phase + 1
@@ -490,7 +490,7 @@ Select Case .phase
 
     Case 7  
 
-        .pumpDActive = False 'feed B off
+        .pumpFActive = False 'feed B off
         s(1) = Scale_Weight(1) 'static weight after feed B is finished 
 
         If .inoculationTime_H > Feed_Time(12) and s(4) > Major_Feed_TargetWeight_Value(12) Then 
@@ -523,8 +523,8 @@ Select Case .phase
             lastState = State
         End If
 
-        If .VCPV <> 0 Then 'reset totalizer
-            .SetVCPV(0)
+        If .VDPV <> 0 Then 'reset totalizer
+            .SetVDPV(0)
         End If
 
         s(2) = Scale_Weight(2) 'Static of Interval scale weight 
@@ -543,23 +543,23 @@ Select Case .phase
     Case 9 'Feed A runs
 
         s(3) = Scale_Weight(3) 'dynamic interval scale weight 
-        .pumpCActive = True 'replace with pump A for feed B 'issue here with offline reset 
+        .pumpDActive = True 'replace with pump A for feed B 'issue here with offline reset 
         
         If abs(MajorFeed_Fed) > (s(4) * cut_pumpValue_Percent) Then  
-            .FCSP = Major_Feed_SP_percent 'reduced pump flow setpoint 
+            .FDSP = Major_Feed_SP_percent 'reduced pump flow setpoint 
         Else
-            .FCSP = Major_Feed_SP 'starting pump flow rate
+            .FDSP = Major_Feed_SP 'starting pump flow rate
         End If 
         
         If abs(MajorFeed_Fed) > s(4) and (.runtime_H - .phaseStart_H) > 0.1/60 Then '(s(1) - s(2)) > s(12)
-            .pumpCActive = False
+            .pumpDActive = False
             .intF = s(2) - s(3) 'Feed A Fed
             .logmessage("██ - Phase: 9 - Day " & procDay & " - Unit #: " & .unit & ". - ██ Feed A Fed:  " & formatNumber(MajorFeed_Fed, 2) & " [g]")
             .phase = .phase + 1
-        ElseIf (.runtime_H - .phaseStart_H) > 0.1/60 AndAlso .VCPV > (1.1 * s(4)) 'if dynamic totalizer is above 110% of target weight then stop
-            .pumpCActive = False
-            .intF = .VCPV 'record dynamic totalizer value
-            .logalarm("██ - Phase: 9 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ".██ Feed A Totalizer: " & formatNumber(.VCPV, 2) & " [g] is above 110% of target weight: " & s(4) & " [g]. Stopping Feed A.")
+        ElseIf (.runtime_H - .phaseStart_H) > 0.1/60 AndAlso .VDPV > (1.1 * s(4)) 'if dynamic totalizer is above 110% of target weight then stop
+            .pumpDActive = False
+            .intF = .VDPV 'record dynamic totalizer value
+            .logalarm("██ - Phase: 9 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ".██ Feed A Totalizer: " & formatNumber(.VDPV, 2) & " [g] is above 110% of target weight: " & s(4) & " [g]. Stopping Feed A.")
             .phase = .phase + 1
         End If
 
@@ -626,8 +626,8 @@ Select Case .phase
             .phase = .phase + 1
         End If
 
-        If .VAPV <> 0 Then 'reset feed a totalizer
-            .SetVAPV(0)
+        If .VEPV <> 0 Then 'reset feed a totalizer
+            .SetVEPV(0)
         End If        
 
 '==========================================================================================
@@ -659,20 +659,20 @@ Select Case .phase
         End If
 
         s(11) = Scale_Weight(5) 'dynamic interval scale weight 
-        .pumpAActive = True 'Glucose starts
+        .pumpEActive = True 'Glucose starts
         
         If abs(glucoseFeed_Fed) > (s(12) * Glucose_Cut_pumpValue_Percent) Then  's(12) = glucose value input to offline D; cut value % = 75
-            .FASP = Glucose_Feed_SP_percent 'reduced pump flow setpoint when 75% of target weight achieved 
+            .FESP = Glucose_Feed_SP_percent 'reduced pump flow setpoint when 75% of target weight achieved 
         Else
-            .FASP = Glucose_Feed_SP 'starting pump flow rate
+            .FESP = Glucose_Feed_SP 'starting pump flow rate
         End If 
         
         If abs(glucoseFeed_Fed) > s(12) AndAlso (.runtime_H - .phaseStart_H) > 0.1/60 OrElse s(12) = 0 Then 'allows user to stop glucose value 
             .logmessage("Phase: 14  Day: " & procDay & ".  Unit #: " & .unit & ".  ---Feed Counter: [" & .IntC &"]")
             .phase = .phase + 1 'reset to phase 2; need to move to glucose feed phase 
-        ElseIf (.runtime_H - .phaseStart_H) > 0.1/60 AndAlso .VAPV > (1.1 * s(12)) Then 'if dynamic totalizer is above 110% of target weight then stop
-            .pumpAActive = False
-            .logwarning("██ - Phase: 14 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Totalizer: " & formatNumber(.VAPV, 2) & " [g] is above 110% of target weight: " & s(12) & " [g]. Stopping Feed A.")
+        ElseIf (.runtime_H - .phaseStart_H) > 0.1/60 AndAlso .VEPV > (1.1 * s(12)) Then 'if dynamic totalizer is above 110% of target weight then stop
+            .pumpEActive = False
+            .logwarning("██ - Phase: 14 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Totalizer: " & formatNumber(.VEPV, 2) & " [g] is above 110% of target weight: " & s(12) & " [g]. Stopping Feed A.")
             .phase = .phase + 1
         End If
 
@@ -687,7 +687,7 @@ Select Case .phase
 '==========================================================================================
 
     Case 15
-        .pumpAActive = False
+        .pumpEActive = False
         If .runtime_H - .phaseStart_H < 0.1/60 Then 
         .logwarning("██ - Phase: 15 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Total Feeds: - ██ - Feed A: " & formatNumber(MajorFeed_Fed, 2) & " [g]. Feed B: " & s(9) & " [mL]. Glucose:  " & formatNumber(glucoseFeed_Fed, 2) & "[g] - ██")
             .phase = 2
@@ -695,9 +695,9 @@ Select Case .phase
 
     Case 16 
     'insert stop commands 
-    .pumpCActive = False
-    .pumpDActive = False 
-    .pumpAActive = False
+    .pumpDActive = False
+    .pumpFActive = False 
+    .pumpEActive = False
 End Select
 End With
 End If
@@ -707,12 +707,12 @@ End If
 'p.logmessage("FeedB Increment" & s(18))
 'p.logmessage("static totalizer " & s(19))
 'p.logmessage("feed b vol target " & s(20))
-'p.logmessage("active totalizer " & p.VDPV)
+'p.logmessage("active totalizer " & p.VFPV)
 'p.LogMessage("Inoc Time [h]: " & p.InoculationTime_H)
 'p.LogMessage("Phase Interval Time [h]: " & (P.runtime_H-p.PhaseStart_H))
 
 'p.LogMessage("Major Feed SP: " & Major_Feed_SP)
-'p.LogMessage("pump C SP: " & p.FCSP)
+'p.LogMessage("pump C SP: " & p.FDSP)
 
 'p.LogMessage("MajorFeed Fed: " & MajorFeed_Fed )
 'p.logmessage("majorfeed target weight: " & Major_Feed_TargetWeight)
