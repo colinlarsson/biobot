@@ -174,7 +174,7 @@ If P isNot Nothing Then
     .intU = .phase 'phase
     .intV = .runtime_H - .phaseStart_H 'phase time 
     .intC = s(5) 'Feed Counter
-    .intD = procDay 'feed b counter 
+    .intD = procDay 'show process day 
     .intE = s(4) 'major feed target weight  
     '.intF = s(2) - s(3) 'Feed A Fed Update:Defined later in feed A block
     .intG = s(12) 'glucose target display
@@ -183,7 +183,6 @@ If P isNot Nothing Then
     .IntJ = s(9) 'Track Feed B Fed, not true value
     .intK = s(2) 'static interval feed
     .intL = s(3) 'dynamic scale reading during phase 9
-    .intQ = procDay
     '.intS = s(9)
     '.intT = s(6) - .inoculationTime_H 'time to feed in hours. changing, won't be set until after phase 3 runs
 
@@ -763,7 +762,11 @@ Select Case .phase
 
     Case 15
         .pumpEActive = False
+
+
         If .runtime_H - .phaseStart_H < 0.1/60 Then 
+        .intA = 0
+        .intB = 0
         .logwarning("██ - Phase: 15 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Total Feeds: - ██ - Feed A: " & formatNumber(MajorFeed_Fed, 2) & " [g]. Feed B: " & s(9) & " [mL]. Glucose:  " & formatNumber(glucoseFeed_Fed, 2) & "[g] - ██")
             .phase = 2
         End If
