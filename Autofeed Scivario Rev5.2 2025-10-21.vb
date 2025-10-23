@@ -6,6 +6,11 @@
 'D = Feed A gravimetric f.cal = 15.92
 'F = Feed B volumetric f.cal = 105
 
+'pumpDActive
+'VDPV
+'FDSP
+'fdcal
+
 'Feed A 
 Dim MajorFeed_Fed as Double '[g]
 Dim glucoseFeed_Fed as Double '[g]
@@ -22,11 +27,11 @@ Scale_Weight(4) = p.MAPV 'glucose interval starting bottleweight
 Scale_Weight(5) = p.MAPV 'current weight glucose
 
 'Process Day
-Dim procDay As Integer 'Day used for logmessages and acknowledge glucose sample
+Dim procDay As Integer 'Day used for logmessages
 
 'Caluation for Process Day, rolls over 8 hours before inoculation time
 Dim calculatedProcDay As Integer
-calculatedProcDay = p.offlineQ 'int((p.inoculationTime_H + 8) / 24)
+calculatedProcDay = int((p.inoculationTime_H + 8) / 24)
 
 'Process day logic, 8 hours before inoculation time, the day ticks over.
 If calculatedProcDay < 0 Then
@@ -56,9 +61,9 @@ Dim FeedB_VolumeTarget as Double = 0
 'Feed B Target Volumes - pump A
 Dim FeedB_VolumeTarget_Value(15) as Double 
 
-'Feed A fcal (pump C) = 15.92
-'Glucose fcal (pump A) = 24
-'feed B fcal (pump D) = 105
+'Feed A fcal (pump D) = 15.92
+'Glucose fcal (pump E) = 24
+'feed B fcal (pump F) = 105
 Dim pumpD_FCal as Double
 Dim pumpF_FCal as Double
 Dim pumpE_FCal as Double
@@ -155,9 +160,10 @@ Dim a(22) as Double
     a(10) = 0 'Glucose interval starting bottleweight
     a(11) = 0 'current weight for glucose
     a(12) = 0 'user input glucose
-    a(13) = 0 'NEW: Feed A totalizer baseline
-    a(14) = 0 'NEW: Glucose totalizer baseline
-    a(15) = 0 'NEW: Feed B totalizer baseline
+    a(13) = 0 'Feed A totalizer baseline
+    a(14) = 0 'Glucose totalizer baseline
+    a(15) = 0 'Feed B totalizer baseline
+    a(16) = 0 'Glucose and Sample Confirmation Flag
     s = a
 End If
 
@@ -221,6 +227,7 @@ If State <> lastState Then
 End If
 
 Select Case .phase
+
     Case 0 'Workflow Start 
         .logmessage("██████████████-----AUTOFEED Scivario Test Starting...")
         .phase = .phase + 1
@@ -282,7 +289,11 @@ Select Case .phase
         .pumpFActive = False 
         .pumpEActive = False
 
+        'Reset the intA/intB reset flag to 0, should made them user adjustable
+        s(16) = 0
+
         If .OfflineM = 0 Then 'Update Counters Manually, M: 1 enter reset state, N: number of steps to skip, O: step up 1. M will intercept after every feed
+
             If .InoculationTime_H > Feed_Time(1) And (.runtime_H - .phaseStart_H) > 0.1 / 60 Then 'waits for first feed time + 6s delay;
                 s(5) = s(5) + 1 'Major Feed Counter
                 s(7) = s(7) + 1 'Feed B Counter, not currently used
@@ -428,7 +439,7 @@ Select Case .phase
         '    .phase = .phase + 2
 
         'if sample not confirmed before feed time, will sit and wait in next phase. this logmessage runs a day early
-        ElseIf .intB = 0 And .inoculationTime_H < (s(6) + sampleDelay) And ((.runtime_H - .PhaseStart_H) > 0.1 / 60) Then 'Waiting for intB to confirm sample
+        If .intB = 0 And .inoculationTime_H < (s(6) + sampleDelay) And ((.runtime_H - .PhaseStart_H) > 0.1 / 60) Then 'Waiting for intB to confirm sample
             .logwarning("██ - Phase: 3 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Enter Glucose Target in internal A, then confirm sample in internal B fields.")
             .intT = s(6) - .inoculationTime_H 'time to feed in hours. 
             .phase = .phase + 1
@@ -483,7 +494,7 @@ Select Case .phase
         If .inoculationTime_H > s(6) Then 
             .pumpFActive = True 'turn feed B on 
         End If 
-
+        's(7) = FeedB Counter, redundand with s(5)
         's(8) = FeedB_Totalizer: starting totalizer snapshot from phase 3
         's(9) = FeedB_VolumeTarget: volume chosen in phase 3
 
@@ -713,6 +724,9 @@ Select Case .phase
 
         'Dynamic glucose scale weight, updates live during phase 14
         s(11) = Scale_Weight(5) '[g]
+
+        'intH is display for glucose fed, updates live during phase 14, phase 13 snapshot weight minus current weight
+        .intH = s(10) - s(11) '[g] same as
         
         's(12) = user input glucose
         'glucose_feed_sp = 150 '[mL/H] - starting pump flow setpoint, set in variable section
@@ -723,9 +737,6 @@ Select Case .phase
         's(12) = user input glucose target weight
         'glucoseFeed_Fed = (s(10) - s(11)) [g] 'calculated in variable section
         's(14) = Glucose totalizer baseline from phase 13
-
-        'intG is display for glucose fed, updates live during phase 14, phase 13 snapshot weight minus current weight
-        .intG = s(10) - s(11) '[g] same as
 
         '*************PHASE VARIABLES*************
 
@@ -761,21 +772,26 @@ Select Case .phase
 '==========================================================================================
 
     Case 15
+
         .pumpEActive = False
 
+        If s(16) = 0 Then 
+            .intA = 0 'Reset glucose target
+            .intB = 0 'Reset sample confirmation
+            s(16) = 1 'Set flag so reset only happens once
+        End If
 
-        If .runtime_H - .phaseStart_H < 0.1/60 Then 
-        .intA = 0
-        .intB = 0
-        .logwarning("██ - Phase: 15 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Total Feeds: - ██ - Feed A: " & formatNumber(MajorFeed_Fed, 2) & " [g]. Feed B: " & s(9) & " [mL]. Glucose:  " & formatNumber(glucoseFeed_Fed, 2) & "[g] - ██")
+        If .runtime_H - .phaseStart_H > 0.1/60 Then
+            .logwarning("██ - Phase: 15 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Total Feeds: - ██ - Feed A: " & formatNumber(MajorFeed_Fed, 2) & " [g]. Feed B: " & s(9) & " [mL]. Glucose:  " & formatNumber(glucoseFeed_Fed, 2) & "[g] - ██")
             .phase = 2
         End If
 
     Case 16 
-    'insert stop commands 
+
     .pumpDActive = False
     .pumpFActive = False 
     .pumpEActive = False
+
 End Select
 End With
 End If
