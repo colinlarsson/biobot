@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Autofeed Configuration Form</title>
+  <style>
+    body {
+      background: #f3f6fa;
+      min-height: 100vh;
+      padding: 20px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .card {
+      background: #fff;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+      border-radius: 18px;
+      padding: 30px 40px;
+      margin-bottom: 30px;
+    }
+    
+    .card-header {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2a3b4c;
+      font-size: 32px;
+      font-weight: 600;
+    }
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2a3b4c;
+      margin: 25px 0 15px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e3eaf2;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .form-field {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-field label {
+      font-weight: 600;
+      color: #2a3b4c;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    
+    .form-field input,
+    .form-field select {
+      padding: 8px 12px;
+      border: 1px solid #cfd8dc;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #f8fafc;
+    }
+    
+    .form-field input:focus,
+    .form-field select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: #fff;
+    }
+    
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    .pump-config {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .pump-config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 15px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #f8fafc;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    th, td {
+      border: 1px solid #e0e6ed;
+      padding: 8px 12px;
+      text-align: center;
+    }
+    
+    th {
+      background: #e3eaf2;
+      color: #2a3b4c;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    table tbody td:first-child {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    table tbody td:nth-child(2),
+    table tbody td:nth-child(3),
+    table tbody td:nth-child(4) {
+      text-align: left;
+      padding-left: 20px;
+      position: relative;
+    }
+    
+    table td input[type="number"] {
+      width: 90px;
+      border: 1px solid #7a7a7a;
+      border-radius: 4px;
+      padding: 4px 8px;
+    }
+    
+    .plus24-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      font-size: 11px;
+      border: 1px solid #0e1d36;
+      background: #3b82f6;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    
+    .plus24-btn:hover {
+      background: #2563eb;
+    }
+    
+    .plus24-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+    
+    .submit-btn {
+      display: block;
+      margin: 30px auto;
+      padding: 12px 48px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+    }
+    
+    .submit-btn:hover {
+      background: #2563eb;
+    }
+    
+    .help-text {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    
+    .card-footer {
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e6ed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        Autofeed Configuration Form v5.3
+      </div>
+      
+      <form id="configForm" autocomplete="off">
+        <!-- Experiment Info Section -->
+        <div class="section-title">Experiment Information</div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="userName">User Name:</label>
+            <input type="text" id="userName" placeholder="e.g. Colin Larsson" required>
+          </div>
+          <div class="form-field">
+            <label for="experimentId">Experiment ID:</label>
+            <input type="text" id="experimentId" placeholder="e.g. 706R020725" required>
+          </div>
+          <div class="form-field">
+            <label for="reactorId">Reactor ID:</label>
+            <input type="text" id="reactorId" placeholder="e.g. H1-4" required>
+          </div>
+          <div class="form-field">
+            <label for="sampleDelay">Sample Delay (hours):</label>
+            <input type="number" step="any" id="sampleDelay" value="4" required>
+            <span class="help-text">Hours before feed to allow sample confirmation</span>
+          </div>
+        </div>
+        
+        <!-- Pump Configuration Section -->
+        <div class="section-title">Pump Configuration</div>
+        
+        <div class="pump-config">
+          <div style="font-weight: 600; margin-bottom: 10px;">Feed A (Major Feed) - Gravimetric</div>
+          <div class="pump-config-grid">
+            <div class="form-field">
+              <label for="feedAPump">Pump Assignment:</label>
+              <select id="feedAPump" required>
+                <option value="A">Pump A</option>
+                <option value="B">Pump B</option>
+                <option value="C">Pump C</option>
+                <option value="D" selected>Pump D</option>
+                <option value="E">Pump E</option>
+                <option value="F">Pump F</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="feedAFCal">F-Calibration:</label>
+              <input type="number" step="any" id="feedAFCal" value="16.5" required>
+            </div>
+            <div class="form-field">
+              <label for="feedAFlowRate">Flow Rate (mL/h):</label>
+              <input type="number" step="any" id="feedAFlowRate" value="250" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="pump-config">
+          <div style="font-weight: 600; margin-bottom: 10px;">Feed B - Volumetric</div>
+          <div class="pump-config-grid">
+            <div class="form-field">
+              <label for="feedBPump">Pump Assignment:</label>
+              <select id="feedBPump" required>
+                <option value="A">Pump A</option>
+                <option value="B">Pump B</option>
+                <option value="C">Pump C</option>
+                <option value="D">Pump D</option>
+                <option value="E">Pump E</option>
+                <option value="F" selected>Pump F</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="feedBFCal">F-Calibration:</label>
+              <input type="number" step="any" id="feedBFCal" value="105" required>
+            </div>
+            <div class="form-field">
+              <label for="feedBFlowRate">Flow Rate (mL/h):</label>
+              <input type="number" step="any" id="feedBFlowRate" value="15" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="pump-config">
+          <div style="font-weight: 600; margin-bottom: 10px;">Glucose Feed - Gravimetric</div>
+          <div class="pump-config-grid">
+            <div class="form-field">
+              <label for="glucosePump">Pump Assignment:</label>
+              <select id="glucosePump" required>
+                <option value="A">Pump A</option>
+                <option value="B">Pump B</option>
+                <option value="C">Pump C</option>
+                <option value="D">Pump D</option>
+                <option value="E" selected>Pump E</option>
+                <option value="F">Pump F</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="glucoseFCal">F-Calibration:</label>
+              <input type="number" step="any" id="glucoseFCal" value="25" required>
+            </div>
+            <div class="form-field">
+              <label for="glucoseFlowRate">Flow Rate (mL/h):</label>
+              <input type="number" step="any" id="glucoseFlowRate" value="150" required>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Feed Schedule Section -->
+        <div class="section-title">Feed Schedule (14 Events)</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Feed Time (hrs)</th>
+              <th>Feed A (g)</th>
+              <th>Feed B (mL)</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleTable"></tbody>
+        </table>
+        
+        <button type="button" class="submit-btn" onclick="generateScript()">Generate Script</button>
+      </form>
+      
+      <div class="card-footer">
+        Colin Larsson — Autofeed Configuration Form v5.3
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Default values
+    const defaultFeedTimes = [24,48,72,96,120,144,168,192,216,240,264,288,312,336];
+    const defaultFeedA = [0,45,0,90,0,120,0,150,0,150,0,0,0,0];
+    const defaultFeedB = [0.0,1.5,0.0,3.0,0.0,4.5,0.0,6.0,0.0,7.5,0.0,0.0,0.0,0.0];
+
+    // Build schedule table
+    const tbody = document.getElementById('scheduleTable');
+    for (let i = 1; i <= 14; i++) {
+      const tr = document.createElement('tr');
+      
+      const tdEvent = document.createElement('td');
+      tdEvent.textContent = `Feed #${i.toString().padStart(2,'0')}`;
+      tr.appendChild(tdEvent);
+      
+      const tdTime = document.createElement('td');
+      const inpTime = document.createElement('input');
+      inpTime.type = 'number';
+      inpTime.step = 'any';
+      inpTime.id = `feedTime${i}`;
+      inpTime.value = defaultFeedTimes[i-1];
+      tdTime.appendChild(inpTime);
+      
+      if (i > 1) {
+        const btnPlus = document.createElement('button');
+        btnPlus.type = 'button';
+        btnPlus.className = 'plus24-btn';
+        btnPlus.innerHTML = `<span>+24</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg>`;
+        btnPlus.title = `Add 24hrs to Feed #${i-1} time`;
+        btnPlus.addEventListener('click', () => {
+          const prev = parseFloat(document.getElementById(`feedTime${i-1}`).value);
+          inpTime.value = (isNaN(prev) ? 0 : prev) + 24;
+        });
+        tdTime.appendChild(btnPlus);
+      }
+      tr.appendChild(tdTime);
+      
+      const tdA = document.createElement('td');
+      const inpA = document.createElement('input');
+      inpA.type = 'number';
+      inpA.step = 'any';
+      inpA.id = `feedA${i}`;
+      inpA.value = defaultFeedA[i-1];
+      tdA.appendChild(inpA);
+      tr.appendChild(tdA);
+      
+      const tdB = document.createElement('td');
+      const inpB = document.createElement('input');
+      inpB.type = 'number';
+      inpB.step = 'any';
+      inpB.id = `feedB${i}`;
+      inpB.value = defaultFeedB[i-1];
+      tdB.appendChild(inpB);
+      tr.appendChild(tdB);
+      
+      tbody.appendChild(tr);
+    }
+
+    function generateScript() {
+      // Gather form data
+      const userName = document.getElementById('userName').value.trim();
+      const experimentId = document.getElementById('experimentId').value.trim();
+      const reactorId = document.getElementById('reactorId').value.trim();
+      const sampleDelay = parseFloat(document.getElementById('sampleDelay').value);
+      
+      if (!userName || !experimentId || !reactorId || isNaN(sampleDelay)) {
+        alert('Please complete all required fields.');
+        return;
+      }
+      
+      // Pump configurations
+      const feedAPump = document.getElementById('feedAPump').value;
+      const feedAFCal = parseFloat(document.getElementById('feedAFCal').value);
+      const feedAFlowRate = parseFloat(document.getElementById('feedAFlowRate').value);
+      
+      const feedBPump = document.getElementById('feedBPump').value;
+      const feedBFCal = parseFloat(document.getElementById('feedBFCal').value);
+      const feedBFlowRate = parseFloat(document.getElementById('feedBFlowRate').value);
+      
+      const glucosePump = document.getElementById('glucosePump').value;
+      const glucoseFCal = parseFloat(document.getElementById('glucoseFCal').value);
+      const glucoseFlowRate = parseFloat(document.getElementById('glucoseFlowRate').value);
+      
+      // Gather schedule data
+      const feedTimes = [];
+      const feedAValues = [];
+      const feedBValues = [];
+      
+      for (let i = 1; i <= 14; i++) {
+        const time = parseFloat(document.getElementById(`feedTime${i}`).value);
+        const valA = parseFloat(document.getElementById(`feedA${i}`).value);
+        const valB = parseFloat(document.getElementById(`feedB${i}`).value);
+        
+        if ([time, valA, valB].some(v => isNaN(v))) {
+          alert(`Invalid entry on Feed #${i}.`);
+          return;
+        }
+        
+        feedTimes.push(time);
+        feedAValues.push(valA);
+        feedBValues.push(valB);
+      }
+      
+      // Generate VB script
+      const script = generateVBScript({
+        userName, experimentId, reactorId, sampleDelay,
+        feedAPump, feedAFCal, feedAFlowRate,
+        feedBPump, feedBFCal, feedBFlowRate,
+        glucosePump, glucoseFCal, glucoseFlowRate,
+        feedTimes, feedAValues, feedBValues
+      });
+      
+      // Download file
+      const blob = new Blob([script], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${experimentId}_${reactorId}_Autofeed_v5.3.vb`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function generateVBScript(config) {
+      const pumpProps = {
+        A: { totalizer: 'VAPV', setpoint: 'FASP', active: 'pumpAActive', fcal: 'FACal', setPV: 'SetVAPV' },
+        B: { totalizer: 'VBPV', setpoint: 'FBSP', active: 'pumpBActive', fcal: 'FBCal', setPV: 'SetVBPV' },
+        C: { totalizer: 'VCPV', setpoint: 'FCSP', active: 'pumpCActive', fcal: 'FCCal', setPV: 'SetVCPV' },
+        D: { totalizer: 'VDPV', setpoint: 'FDSP', active: 'pumpDActive', fcal: 'FDCal', setPV: 'SetVDPV' },
+        E: { totalizer: 'VEPV', setpoint: 'FESP', active: 'pumpEActive', fcal: 'FECal', setPV: 'SetVEPV' },
+        F: { totalizer: 'VFPV', setpoint: 'FFSP', active: 'pumpFActive', fcal: 'FFCal', setPV: 'SetVFPV' }
+      };
+      
+      const feedA = pumpProps[config.feedAPump];
+      const feedB = pumpProps[config.feedBPump];
+      const glucose = pumpProps[config.glucosePump];
+      
+      const feedTimesStr = config.feedTimes.map((v, i) => `Feed_Time(${i+1}) = ${v}`).join('\n');
+      const feedAStr = config.feedAValues.map((v, i) => `Major_Feed_TargetWeight_Value(${i+1}) = ${v}`).join('\n');
+      const feedBStr = config.feedBValues.map((v, i) => `FeedB_VolumeTarget_Value(${i+1}) = ${v}`).join('\n');
+
+      return `'Autofeed for Scivario - Generated Configuration
+'Version 5.4 - Generated: ${new Date().toISOString().split('T')[0]}
+'User: ${config.userName}
+'Experiment: ${config.experimentId}
+'Reactor: ${config.reactorId}
+
+'=== PUMP CONFIGURATION ===
+'Feed A (Major Feed): Pump ${config.feedAPump} - Gravimetric - FCal: ${config.feedAFCal}
+'Feed B: Pump ${config.feedBPump} - Volumetric - FCal: ${config.feedBFCal}
+'Glucose: Pump ${config.glucosePump} - Gravimetric - FCal: ${config.glucoseFCal}
+
+'Feed Variables
+Dim MajorFeed_Fed as Double '[g]
+Dim glucoseFeed_Fed as Double '[g]
+
+'BalanceState Function
+'Case 0, Case 1, Case 7, Case 8, Case 9, Case 12, Case 14
+Dim State As Integer = p.BalanceAState()
+
+Dim Scale_Weight(6) as Double 
+Scale_Weight(1) = p.MAPV 'time zero bottle weight 
+Scale_Weight(2) = p.MAPV 'interval starting bottleweight 
+Scale_Weight(3) = p.MAPV 'current weight feed A
+Scale_Weight(4) = p.MAPV 'glucose interval starting bottleweight
+Scale_Weight(5) = p.MAPV 'current weight glucose
+
+'Process Day Calculation
+Dim procDay As Integer
+'Caluation for Process Day, rolls over 8 hours before inoculation time
+Dim calculatedProcDay As Integer
+calculatedProcDay = int((p.inoculationTime_H + 8) / 24)
+
+'Process day logic, 8 hours before inoculation time, the day ticks over.
+If calculatedProcDay < 0 Then
+    procDay = 0
+Else
+    procDay = calculatedProcDay
+End If
+
+'Configuration Parameters
+Dim sampleDelay as Double = ${config.sampleDelay}
+'Feed Start Time in hours, initialized to 0
+Dim Feed_StartTime as Double = 0
+'Lead time for sample prompt in hours, not used right now
+Dim samplePromptLead_H As Double = 4
+
+'Feed Schedule Arrays
+Dim Feed_Time(15) as Double
+${feedTimesStr}
+
+Dim Major_Feed_TargetWeight as Double
+Dim Major_Feed_TargetWeight_Value(15) as Double
+${feedAStr}
+
+Dim FeedB_VolumeTarget as Double = 0
+Dim FeedB_VolumeTarget_Value(15) as Double
+${feedBStr}
+
+'Pump Calibrations
+Dim FeedA_FCal as Double = ${config.feedAFCal}
+Dim FeedB_FCal as Double = ${config.feedBFCal}
+Dim Glucose_FCal as Double = ${config.glucoseFCal}
+
+' How many scheduled events are configured (easy to change)
+Dim MaxFeeds As Integer = 14
+
+'Feed A SetPoints
+Dim Major_Feed_SP as Double = ${config.feedAFlowRate}
+Dim Major_Feed_Percent_Value as Double = 0.25 'reduce pump flow rate to 25% of SP 
+Dim Major_Feed_SP_percent as Double = Major_Feed_SP * Major_Feed_Percent_Value 'stores the new reduced pump flow sp
+Dim cut_pumpValue_Percent as Double = 0.75 'slow down when reached 75% of target value 
+Dim Major_Feed_Counter as Double = 0
+
+'Glucose Feed SetPoints
+Dim Glucose_Feed_SP as Double = ${config.glucoseFlowRate}
+Dim Glucose_Feed_Percent_Value as Double = 0.25
+Dim Glucose_Feed_SP_percent as Double = Glucose_Feed_SP * Glucose_Feed_Percent_Value
+Dim Glucose_Cut_pumpValue_Percent as Double = 0.75
+
+'Feed B Parameters
+Dim FeedB_FlowRate as Double = ${config.feedBFlowRate}
+Dim FeedB_Counter as Double = 0
+Dim FeedB_Totalizer as Double = 0
+
+'Initialize State Array
+If s is Nothing then
+    Dim a(22) as Double
+    a(1) = 0  'time zero bottle weight
+    a(2) = 0  'interval starting bottleweight
+    a(3) = 0  'current weight
+    a(4) = Major_Feed_TargetWeight
+    a(5) = Major_Feed_Counter
+    a(6) = Feed_StartTime
+    a(7) = FeedB_Counter
+    a(8) = FeedB_Totalizer
+    a(9) = FeedB_VolumeTarget
+    a(10) = 0 'Glucose interval starting bottleweight
+    a(11) = 0 'current weight for glucose
+    a(12) = 0 'user input glucose
+    a(13) = 0 'Feed A totalizer baseline
+    a(14) = 0 'Glucose totalizer baseline
+    a(15) = 0 'Feed B totalizer baseline
+    a(16) = 0 'Glucose and Sample Confirmation Flag
+    s = a
+End If
+
+If P isNot Nothing Then
+    With P 
+
+    'interval starting weight minus current weight
+    MajorFeed_Fed = (s(2) - s(3)) 
+    'glucose feed starting weight minus current weight
+    glucoseFeed_Fed = (s(10) - s(11)) 
+
+    '.intA =  s(12) 'requested glucose input
+    '.intB = sample confirmation, 0 = not confirmed, 1 = confirmed
+    .intC = procDay 'show process day  
+    .intD = s(5) 'Feed Counter
+    .intE = s(4) 'Feed A Target
+    '.intF = s(2) - s(3) 'Feed A Fed Update: Defined later in feed A block
+    .intG = s(12) 'glucose target display
+    .intH = s(10) - s(11) 'glucose fed
+    .intI = s(9) + s(8) 'feed b volume target
+    .IntJ = s(9) 'Track Feed B Fed, not true value
+    .intK = s(2) 'static interval feed
+    .intL = s(3) 'dynamic scale reading during phase 9
+    '.intS = s(9)
+    '.intT = s(6) - .inoculationTime_H 'time to feed in hours. changing, won't be set until after phase 3 runs
+    .intU = .phase 'phase
+    .intV = .runtime_H - .phaseStart_H 'phase time
+
+    'Calculate time remaining until next feed
+    Dim timeRemaining As Double
+
+    If s(5) = 0 Then 'sets intT to use the first feed time if the feed counter s(5) hasn't turned over
+        timeRemaining = Feed_Time(1) - .inoculationTime_H 'time to first feed in hours.
+    Else 
+        timeRemaining = s(6) - .inoculationTime_H 's(6) will update after phase 3
+    End If
+
+    If timeRemaining < 0 Then 'Prevents time remaining intT from being negative
+        .intT = 0
+    Else
+        .intT = timeRemaining
+    End If
+    
+Static lastState As Integer
+
+Select Case .phase
+
+    Case 0 'Workflow Start 
+        .logmessage("Autofeed Scivario Test Loaded")
+        .phase = .phase + 1
+
+'==========================================================================================
+' PHASE 1 - Start Inoculation Timer
+'==========================================================================================
+
+            Case 1
+
+                If .InoculationTime_H > 0 And (.runtime_H - .phaseStart_H) > 0.1/60 Then
+                    .phase = .phase + 1
+                End If
+
+'==========================================================================================
+' PHASE 2 - Counter Management and totalizer reset
+'==========================================================================================
+
+            Case 2
+
+                .${feedA.active} = False
+                .${feedB.active} = False
+                .${glucose.active} = False
+                
+                'Reset the intA/intB reset flag to 0, should made them user adjustable
+                
+                If .OfflineM = 0 Then 'Update Counters Manually, M: 1 enter reset state, N: number of steps to skip, O: step up 1. M will intercept after every feed
+                'not currently functional, will be for pause function
+
+                    If .InoculationTime_H > Feed_Time(1) And (.runtime_H - .phaseStart_H) > 0.1/60 Then 'waits for first feed time + 6s delay;
+                        s(5) = s(5) + 1
+                        s(7) = s(7) + 1
+                        .phase = .phase + 1
+                    ElseIf s(5) > MaxFeeds Then 'checks if all feeds are done
+                        .${feedA.active} = False
+                        .${feedB.active} = False
+                        .${glucose.active} = False
+                        .logmessage("All Feeds Delivered: Major=" & CInt(s(5)) & "/" & MaxFeeds & ", Feed B=" & CInt(s(7)) & "/" & MaxFeeds & ". Stopping (Phase 16).")
+                        .phase = 16
+                    End If
+                End If
+ 
+'==========================================================================================
+' PHASE 3 - Assign New Values for Interval, looks for sample confirmation
+'==========================================================================================
+
+            Case 3
+
+                'Assign feed parameters based on counter
+                If s(5) >= 1 And s(5) <= 14 Then
+                    Feed_StartTime = Feed_Time(s(5))
+                    Major_Feed_TargetWeight = Major_Feed_TargetWeight_Value(s(5))
+                End If
+                
+                If s(7) >= 1 And s(7) <= 14 Then
+                    FeedB_Totalizer = .${feedB.totalizer}
+                    FeedB_VolumeTarget = FeedB_VolumeTarget_Value(s(7))
+                End If
+                
+                'store feed parameters in state array
+                s(4) = Major_Feed_TargetWeight
+                s(6) = Feed_StartTime
+                s(8) = FeedB_Totalizer
+                s(9) = FeedB_VolumeTarget
+                
+                'if sample not confirmed before feed time, will sit and wait in next phase. this logmessage runs a day early
+                If .intB <> procDay And .inoculationTime_H < (s(6) + sampleDelay) And ((.runtime_H - .PhaseStart_H) > 0.1 / 60) Then 'Waiting for intB to confirm sample
+                    .logwarning("██ - Phase: 3 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Enter Glucose Target in internal A, then confirm sample in internal B fields.")
+                    .intT = s(6) - .inoculationTime_H 'time to feed in hours. 
+                    .phase = .phase + 1
+                ElseIf .intB <> procDay And .inoculationTime_H > (s(6) + sampleDelay) Then 'if sample is not confirmed before phase 4, will skip next phase
+                    .logwarning("██ - Phase: 3 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Sample not confirmed, feeding late, no glucose entered")
+                    .intT = s(6) - .inoculationTime_H 'time to feed in hours. 
+                    .phase = .phase + 2
+                ElseIf .intB = procDay And .inoculationTime_H > s(6) 'if sample is confirmed before phase 4, this message will display, unlikely to happen
+                    .intT = s(6) - .inoculationTime_H 'time to feed in hours. 
+                    .logmessage("██ - Phase: 3 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Sampling Confirmed: Next Feeding Event in " & formatNumber(.intT, 2) & " Hrs")
+                    .logmessage("██ - Phase: 3 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Feed Targets: " & s(9) & " [mL] FB. " & S(4) & " [g] FA and " & .intA & " [g] Glucose.")
+                    .phase = .phase + 2
+                End If
+ 
+              
+'==========================================================================================
+' PHASE 4 - Waiting for Sample Confirmation
+'==========================================================================================
+'sits here after first feed, waiting for sample confirmation
+
+
+            Case 4
+
+                s(12) = .intA 'update requested glucose
+
+                'If sample not confirmed before delay time is passed, will give warning and go to feedB
+                If .intB <> procDay And .inoculationTime_H > (s(6) + sampleDelay) Then 
+                    .logwarning("Phase 4: Sample not verified, feeding late, no glucose entered")
+                    .phase = .phase + 1
+                'If sample confirmed, will check feed time and proceed
+                ElseIf .intB = procDay and .inoculationTime_H > s(6) Then 
+                    .logmessage("██ - Phase: 4 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Sampling Confirmed: Next Feeding Event in " & formatNumber(.intT, 2) & " Hrs")
+                    .logmessage("██ - Phase: 4 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Feed Targets: " & s(9) & " [mL] FB. " & S(4) & " [g] FA and " & .intA & " [g] Glucose.")
+                    .phase = .phase + 1
+                End If
+
+'==========================================================================================
+' PHASE 5 - Determines if Feed B is requested
+'==========================================================================================
+
+            Case 5
+
+                'Skips to phase 7 if no feed B is requested
+                If ((.runtime_H - .PhaseStart_H) > 0.1/60) And .inoculationTime_H > s(6) And s(9) <> 0 Then '6 second delay to ensure values get stored to array. also accounts for hiccups in DWC, checks for fb entry
+                    .logmessage("Phase: 5.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---Feed B Starting: " & s(9) & " [mL] to be fed.")
+                    .phase = .phase + 1
+                ElseIf ((.runtime_H - .PhaseStart_H) > 0.1/60) And .inoculationTime_H > s(6) And s(9) <= 0 Then 
+                    .logmessage("Phase: 5.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---No Feed B To be fed, skipping.")
+                    .phase = .phase + 2 'goes to phase 7
+                End If
+
+'==========================================================================================
+' PHASE 6 - Feed B Start
+'==========================================================================================                
+
+            Case 6
+
+                '*************PHASE VARIABLES*************
+
+                's(7) = FeedB Counter, redundand with s(5)
+                's(8) = FeedB_Totalizer: starting totalizer snapshot from phase 3
+                's(9) = FeedB_VolumeTarget: volume chosen in phase 3
+
+                '*************PHASE VARIABLES*************
+
+                If .inoculationTime_H > s(6) Then
+                    .${feedB.active} = True 'turn feed b on
+                End If
+
+                If s(7) <= MaxFeeds Then
+                    'if totalizer is less than target set in phase 3, keep feeding at specified flowrate
+                    If .${feedB.totalizer} < s(8) + s(9) Then
+                        .${feedB.setpoint} = FeedB_FlowRate
+                    'when totalizer exceeds target, turn feed B off and move to next phase
+                    Else
+                        .logmessage("██ - Phase: 6 - Day " & procDay & " - Unit #: " & .unit & ". - ██ - Feed B Finished: " & s(9) & " [mL] Fed")
+                        .phase = .phase + 1
+                    End If
+                ElseIf s(7) > MaxFeeds And (.runtime_H - .phaseStart_H) > 0.1/60 Then
+                    .phase = 16
+                End If
+
+                
+'==========================================================================================
+' PHASE 7 - Feed B Off, Next Step
+'==========================================================================================
+
+            Case 7
+
+                .${feedB.active} = False
+
+                'takes snapshot of scale weight after feed B, for feed A
+                s(1) = Scale_Weight(1)
+                
+                'max feed check - not necessary
+                If .inoculationTime_H > Feed_Time(14) Then
+                    .phase = 2
+                Else
+                    .phase = .phase + 1
+                End If
+ 
+                
+'==========================================================================================
+' PHASE 8 - Prepare for feed A
+'==========================================================================================
+
+            Case 8
+
+                '*************PHASE VARIABLES*************
+
+                'Record Feed A totalizer baseline at start of interval, should not update in phase 9
+                s(13) = .${feedA.totalizer}
+
+                'Record Scale weight and set s(2) to starting weight for feed A
+                s(2) = Scale_Weight(2) 
+                'Set dynamic weight to s(2) just in-case it were negative, will begin updating in phase 9
+                s(3) = s(2) 
+
+                's(6) = Feed_StartTime from phase 3
+                's(4) = Major_Feed_TargetWeight from phase 3
+
+                '*************PHASE VARIABLES END*************
+                
+                'Waits for respective feed time + 6s delay; then moves to feed A phase
+                If .inoculationTime_H > s(6) And s(4) <> 0 And (.runtime_H - .phaseStart_H) > 0.1/60 Then
+                    .phase = .phase + 1
+                'If no feed A, skips to phase 10
+                ElseIf s(4) = 0 Then
+                    .logmessage("Phase: 8.  Day: " & procDay & ".  Unit #: " & .unit & ".  No Feed A entered, skipping Feed A phase.")
+                    .phase = .phase + 2
+                End If
+                
+
+'==========================================================================================
+' PHASE 9 - Feed A Runs
+'==========================================================================================
+
+            Case 9
+
+                '*************PHASE VARIABLES*************
+
+                'Dynamic feed A totalizer calculation, updates live during phase 9
+                Dim FeedA_Fed_Totalizer As Double
+                FeedA_Fed_Totalizer = .${feedA.totalizer} - s(13) '[g]
+                
+                s(3) = Scale_Weight(3)
+
+                '.FDSP Dasware pump D flowrate setpoint; [mL/H]
+                'Major_Feed_SP = 250 '[mL/H] - starting pump flow setpoint, set in variable section
+                'Major_Feed_SP_percent = Major_Feed_SP * 0.25  'stores the new reduced pump flow sp, set in variable section  
+                'cut_pumpValue_Percent = 0.75 'slow down when reached 75% of target value , set in variable section
+                's(2) = interval starting bottleweight from phase 8
+                's(3) = current weight feed A from scale
+                's(4) = Major_Feed_TargetWeight from phase 3, updates each day
+                'MajorFeed_Fed = (s(2) - s(3)) '[g] set in variable section
+                's(13) = Feed A totalizer baseline from phase 8
+
+                '*************PHASE VARIABLES*************
+
+                'intF is display for Feed A fed, updates live during phase 9, phase 8 snapshot weight minus current weight  
+                .intF = s(2) - s(3) '[g] same as MajorFeed_Fed
+
+                'feed A active true
+                .${feedA.active} = True
+                
+                'Speed Control Logic
+                'if majorfeedfed exceeds 75% of target weight, reduce flowrate to 25% of starting setpoint
+                If Abs(MajorFeed_Fed) > (s(4) * cut_pumpValue_Percent) Then
+                    .${feedA.setpoint} = Major_Feed_SP_percent 'reduced pump flow setpoint 
+                Else
+                    .${feedA.setpoint} = Major_Feed_SP 'starting pump flow rate
+                End If
+                
+                'Feed Completion Logic
+                'If majorfeedfed exceeds target weight, stop feed
+                If Abs(MajorFeed_Fed) > s(4) And (.runtime_H - .phaseStart_H) > 0.1/60 Then '(s(1) - s(2)) > s(12)
+                    .${feedA.active} = False
+                    .intF = s(2) - s(3) 'Feed A Fed by scale, probably not necessary since updated live
+                    .logmessage("██ - Phase: 9 - Day " & procDay & " - Unit #: " & .unit & ". - ██ Feed A Fed:  " & formatNumber(MajorFeed_Fed, 2) & " [g]")
+                    .phase = .phase + 1
+                'If dynamic totalizer is 110% above target weight, stop feed
+                ElseIf (.runtime_H - .phaseStart_H) > 0.1/60 And FeedA_Fed_Totalizer > (1.1 * s(4)) Then 'if dynamic totalizer is above 110% of target weight then stop
+                    .${feedA.active} = False
+                    .intF = FeedA_Fed_Totalizer 'record dynamic totalizer value
+                    .logalarm("██ - Phase: 9 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ".██ Feed A Totalizer: " & formatNumber(FeedA_Fed_Totalizer, 2) & " [g] is above 110% of target weight: " & s(4) & " [g]. Stopping Feed A.")
+                    .phase = .phase + 1
+                End If
+                
+
+                'if need to reset loop, then set offline C = 2. when in phase 2, set offline C = 0 to assign phase, then once in phase 4 assign offline C = 1   
+                If .OfflineO = 2 Then
+                    .phase = 2
+                End If
+
+            
+'==========================================================================================
+' PHASE 10 - Glucose Decision Tree
+'==========================================================================================
+
+            Case 10
+
+                s(10) = Scale_Weight(4) 'sets starting glucose interval scale weight
+                s(11) = s(10) 'Initialize end weight to prevent negative display if feed is skipped
+                s(12) = .intA 'requested glucose
+                
+                'intB <> procDay means sample not confirmed
+                'intB = procDay means sample confirmed
+                '(s(6) + sampleDelay) = feed time + delay time
+
+                  If .intB <> procDay AndAlso .inoculationTime_H < (s(6) + sampleDelay) Then 'skips glucose if sample not confirmed
+                      .phase = .phase + 1 'moves to waiting for sample confirmation again
+                  ElseIf .intB = procDay Then
+                      .phase = .phase + 2
+                  End If
+
+'==========================================================================================
+' PHASE 11 - Wait for sample Confirmation
+'==========================================================================================
+
+            Case 11
+
+                'intB <> procDay means sample not confirmed
+                'intB = procDay means sample confirmed
+                '(s(6) + sampleDelay) = feed time + delay time
+                s(12) = .intA 'requested glucose
+                
+                If .intB <> procDay 0 and .inoculationTime_H > (s(6) + sampleDelay) Then 'skips glucose if sample not confirmed
+                    .logwarning("██ - Phase: 11 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Skipping glucose feed, sample not verified")
+                    s(11) = s(10) 'show glucose fed as 0
+                    .phase = .phase + 4
+                ElseIf .intB = procDay Then 'if not entered until after feed
+                    .phase = .phase + 1
+                End If
+
+'==========================================================================================
+' PHASE 12 - Record Glucose Phase Bottleweight Baseline and Totalizer Baseline
+'==========================================================================================
+
+            Case 12
+
+                s(10) = Scale_Weight(4) 'Static glucose interval starting scale weight
+                s(11) = s(10) 'Initialize end weight to prevent negative display
+                s(12) = .intA 'update requested glucose
+                s(14) = .${glucose.totalizer} 'Record Glucose totalizer baseline at start of interval 
+                
+                If .inoculationTime_H > s(6) And (.runtime_H - .phaseStart_H) > 0.5/60 Then 'waits for respective feed time + 30s delay; 
+                    .phase = .phase + 1
+                End If
+
+'==========================================================================================
+' PHASE 13 - Prepare for Glucose
+'==========================================================================================
+
+            Case 13
+
+                '*************PHASE VARIABLES*************
+
+                'Record Glucose totalizer baseline at start of interval, should not update in phase 14
+                s(14) = .${glucose.totalizer} '[mL]
+
+                'Record Scale weight and set s(10) to starting weight for glucose
+                s(10) = Scale_Weight(4) '[g]
+
+                'Set dynamic weight to s(10) just in-case it were negative, will begin updating in phase 14
+                s(11) = s(10) '[g]
+
+                's(12) = user input glucose from phase 4 or 11
+
+                '*************PHASE VARIABLES END*************
+                
+                If s(12) = 0 AndAlso (.runtime_H - .phaseStart_H) > 0.5/60 Then 'no glucose to be added, skips glucose feed
+                    .logmessage("Phase: 14.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---Sampling Confirmed: " & s(12) & " [g] Glucose to be fed.")
+                    .phase = .phase + 2
+                ElseIf s(12) <> 0 AndAlso (.runtime_H - .phaseStart_H) > 0.5/60 Then 
+                    .logmessage("Phase: 14.  Day: " & procDay & ".  Unit #: " & .unit & ".  ---Sampling Confirmed: " & s(12) & " [g] Glucose to be fed.")
+                    .phase = .phase + 1
+                End If
+
+'==========================================================================================
+' PHASE 14 - Glucose Feed
+'==========================================================================================               
+                
+            Case 14
+
+                '*************PHASE VARIABLES*************
+
+                'Dynamic glucose totalizer calculation, updates live during phase 14
+                Dim Glucose_Fed_Totalizer As Double '[g]
+                Glucose_Fed_Totalizer = .${glucose.totalizer} - s(14) '[g]
+                
+                'Dynamic glucose fed calculation, updates live during phase 14
+                s(11) = Scale_Weight(5) '[g]
+
+                'intH is display for glucose fed, updates live during phase 14, phase 13 snapshot weight minus current weight'
+                .intH = s(10) - s(11) '[g] same as glucoseFeed_Fed
+
+                's(12) = user input glucose
+                'glucose_feed_sp = 150 '[mL/H] - starting pump flow setpoint, set in variable section
+                'Glucose_Feed_SP_percent = glucose_feed_sp * 0.25  'stores the new reduced pump flow sp, set in variable section  
+                'Glucose_Cut_pumpValue_Percent = 0.75 'slow down
+                's(10) = starting glucose weight
+                's(11) = current glucose weight
+                's(12) = user input glucose target weight
+                'glucoseFeed_Fed = (s(10) - s(11)) [g] 'calculated in variable section
+                's(14) = Glucose totalizer baseline from phase 13
+
+                '*************PHASE VARIABLES*************
+
+                .${glucose.active} = True
+                
+                'Speed Control Logic
+                'if glucosefeedfed exceeds 75% of target weight, reduce flowrate to 25% of starting setpoint
+                If Abs(glucoseFeed_Fed) > (s(12) * Glucose_Cut_pumpValue_Percent) Then
+                    .${glucose.setpoint} = Glucose_Feed_SP_percent
+                Else
+                    .${glucose.setpoint} = Glucose_Feed_SP
+                End If
+                
+                If Abs(glucoseFeed_Fed) > s(12) And (.runtime_H - .phaseStart_H) > 0.1/60 Then
+                    .logmessage("Phase: 14  Day: " & procDay & ".  Unit #: " & .unit & ".  ---Feed Counter: [" & .intD &"]")
+                    .phase = .phase + 1
+                ElseIf (.runtime_H - .phaseStart_H) > 0.1/60 And Glucose_Fed_Totalizer > (1.1 * s(12)) Then
+                    .${glucose.active} = False
+                    .logwarning("██ - Phase: 14 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Totalizer: " & formatNumber(.VEPV, 2) & " [g] is above 110% of target weight: " & s(12) & " [g]. Stopping Feed A.")
+                    .phase = .phase + 1
+                End If
+
+'==========================================================================================
+' PHASE 15 - Wrap Up
+'==========================================================================================
+
+            Case 15
+
+                .${glucose.active} = False
+                
+                If s(16) = 0 Then
+                    .intA = 0
+                    .intB = 0
+                    s(16) = 1
+                End If
+                
+                If .runtime_H - .phaseStart_H > 0.1/60 Then
+                    .logwarning("██ - Phase: 15 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Total Feeds: - ██ - Feed A: " & formatNumber(MajorFeed_Fed, 2) & " [g]. Feed B: " & s(9) & " [mL]. Glucose:  " & formatNumber(glucoseFeed_Fed, 2) & "[g] - ██")
+                    .phase = 2
+                End If
+                
+            Case 16
+                .${feedA.active} = False
+                .${feedB.active} = False
+                .${glucose.active} = False
+                
+        End Select
+    End With
+End If
+
+'Debug logs (disable when not debugging)
+'p.LogMessage("Phase: " & p.phase)
+'p.LogMessage("Inoc Time [h]: " & p.InoculationTime_H)
+'p.LogMessage("MajorFeed Fed: " & MajorFeed_Fed)
+'p.LogMessage("Array s(2) - STATIC INTERVAL: " & s(2))
+'p.LogMessage("Array s(3) - DYNAMIC INTERVAL: " & s(3))
+'p.LogMessage("Array s(4) - TARGET: " & s(4))
+'p.LogMessage("Array s(5) - COUNTER: " & s(5))
+`;
+    }
+  </script>
+</body>
+</html>

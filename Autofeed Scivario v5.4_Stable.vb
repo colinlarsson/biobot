@@ -622,7 +622,6 @@ Select Case .phase
         '(s(6) + sampleDelay) = feed time + delay time
 
         If .intB <> procDay AndAlso .inoculationTime_H < (s(6) + sampleDelay) Then 'skips glucose if sample not confirmed
-            '.logwarning("██ - Phase: 10 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Enter Glucose Target in intA Field, then set Day to the current Process Day.")
             .phase = .phase + 1
         ElseIf .intB = procDay Then
             .phase = .phase + 2
