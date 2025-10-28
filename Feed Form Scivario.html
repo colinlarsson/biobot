@@ -595,7 +595,7 @@ If P isNot Nothing Then
     .intG = s(12) 'glucose target display
     .intH = s(10) - s(11) 'glucose fed
     .intI = s(9) + s(8) 'feed b volume target
-    .IntJ = s(9) 'Track Feed B Fed, not true value
+    .IntJ = .${feedB.totalizer} - s(8) 'Track Feed B Fed, not true value
     .intK = s(2) 'static interval feed
     .intL = s(3) 'dynamic scale reading during phase 9
     '.intS = s(9)
