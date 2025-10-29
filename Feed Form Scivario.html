@@ -250,7 +250,7 @@
             </div>
             <div class="form-field">
               <label for="feedAFCal">F-Calibration:</label>
-              <input type="number" step="any" id="feedAFCal" value="16.5" required>
+              <input type="number" step="any" id="feedAFCal" value="17.2" required>
             </div>
             <div class="form-field">
               <label for="feedAFlowRate">Flow Rate (mL/h):</label>
@@ -300,7 +300,7 @@
             </div>
             <div class="form-field">
               <label for="glucoseFCal">F-Calibration:</label>
-              <input type="number" step="any" id="glucoseFCal" value="25" required>
+              <input type="number" step="any" id="glucoseFCal" value="29" required>
             </div>
             <div class="form-field">
               <label for="glucoseFlowRate">Flow Rate (mL/h):</label>
@@ -598,7 +598,6 @@ If P isNot Nothing Then
     .IntJ = .${feedB.totalizer} - s(8) 'Track Feed B Fed, not true value
     .intK = s(2) 'static interval feed
     .intL = s(3) 'dynamic scale reading during phase 9
-    '.intS = s(9)
     '.intT = s(6) - .inoculationTime_H 'time to feed in hours. changing, won't be set until after phase 3 runs
     .intU = .phase 'phase
     .intV = .runtime_H - .phaseStart_H 'phase time
@@ -898,7 +897,7 @@ Select Case .phase
                 'intB = procDay means sample confirmed
                 '(s(6) + sampleDelay) = feed time + delay time
 
-                  If .intB <> procDay AndAlso .inoculationTime_H < (s(6) + sampleDelay) Then 'skips glucose if sample not confirmed
+                  If .intB <> procDay AndAlso .inoculationTime_H > s(6) Then 'skips glucose if sample not confirmed
                       .phase = .phase + 1 'moves to waiting for sample confirmation again
                   ElseIf .intB = procDay Then
                       .phase = .phase + 2
@@ -1024,11 +1023,6 @@ Select Case .phase
 
                 .${glucose.active} = False
                 
-                If s(16) = 0 Then
-                    .intA = 0
-                    .intB = 0
-                    s(16) = 1
-                End If
                 
                 If .runtime_H - .phaseStart_H > 0.1/60 Then
                     .logwarning("██ - Phase: 15 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Total Feeds: - ██ - Feed A: " & formatNumber(MajorFeed_Fed, 2) & " [g]. Feed B: " & s(9) & " [mL]. Glucose:  " & formatNumber(glucoseFeed_Fed, 2) & "[g] - ██")
