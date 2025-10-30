@@ -225,9 +225,9 @@
             <input type="text" id="reactorId" placeholder="e.g. H1-4" required>
           </div>
           <div class="form-field">
-            <label for="sampleDelay">Sample Delay (hours):</label>
+            <label for="sampleDelay">Sample Grace Period (hrs):</label>
             <input type="number" step="any" id="sampleDelay" value="4" required>
-            <span class="help-text">Hours before feed to allow sample confirmation</span>
+            <span class="help-text">If sampling isn't confirmed after this period, feed A and feed B will start, skipping glucose.</span>
           </div>
         </div>
         
@@ -863,7 +863,7 @@ Select Case .phase
                 
                 'Feed Completion Logic
                 'If majorfeedfed exceeds target weight, stop feed
-                If Abs(MajorFeed_Fed) > s(4) And (.runtime_H - .phaseStart_H) > 0.1/60 Then '(s(1) - s(2)) > s(12)
+                If Abs(MajorFeed_Fed) > s(4) And (.runtime_H - .phaseStart_H) > 0.1/60 Then 
                     .${feedA.active} = False
                     .intF = s(2) - s(3) 'Feed A Fed by scale, probably not necessary since updated live
                     .logmessage("██ - Phase: 9 - Day " & procDay & " - Unit #: " & .unit & ". - ██ Feed A Fed:  " & formatNumber(MajorFeed_Fed, 2) & " [g]")
@@ -914,7 +914,7 @@ Select Case .phase
                 '(s(6) + sampleDelay) = feed time + delay time
                 s(12) = .intA 'requested glucose
                 
-                If .intB <> procDay 0 and .inoculationTime_H > (s(6) + sampleDelay) Then 'skips glucose if sample not confirmed
+                If .intB <> procDay and .inoculationTime_H > (s(6) + sampleDelay) Then 'skips glucose if sample not confirmed
                     .logwarning("██ - Phase: 11 - ██ - Day: " & procDay & " - ██ - Unit #: " & .unit & ". - ████ - Skipping glucose feed, sample not verified")
                     s(11) = s(10) 'show glucose fed as 0
                     .phase = .phase + 4
