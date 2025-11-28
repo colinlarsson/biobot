@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PID Controller Conversion Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="number"] { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px; }
+        button:hover { background-color: #45a049; }
+        #results { margin-top: 30px; padding: 15px; border: 2px solid #007bff; border-radius: 4px; background-color: #f7f7ff; }
+        .result-heading { color: #007bff; }
+        .error { color: red; font-weight: bold; }
+        .note { font-size: 0.9em; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>DASGIP to Scivario PID Converter</h1>
+    <p>Enter the Proportional Gain (Kp) and Integral Time (Ti) from the <b>DasGip</b> controller to get the equivalent <b>Scivario</b> settings.</p>
+
+    <hr>
+
+    <label for="Kp_dasgip">DASGIP Proportional Gain (Kp):</label>
+    <input type="number" id="Kp_dasgip" value="0.1" step="any">
+
+    <label for="Ti_dasgip">DASGIP Integral Time (Ti) in Seconds:</label>
+    <input type="number" id="Ti_dasgip" value="300" step="any">
+
+    <button onclick="calculateConversion()">Convert Settings</button>
+
+    <div id="results">
+        </div>
+
+    <script>
+        // Copy the content from "1. The JavaScript Logic" section here
+        /**
+         * Converts Dasgip PID settings (Kp, Ti in seconds) to Scivario settings (Kp, Ki in 1/hour).
+         * The formula used is Ki (1/hr) = Kp / Ti (hours).
+         * The function also handles the conversion of Ti from seconds to hours.
+         *
+         * @param {number} Kp_dasgip - The Proportional Gain from Dasgip.
+         * @param {number} Ti_sec_dasgip - The Integral Time in seconds from Dasgip.
+         * @returns {object} An object containing the equivalent Scivario settings (Kp, Ki, Kd).
+         */
+        function convertDasgipToScivario(Kp_dasgip, Ti_sec_dasgip) {
+            // 1 hour = 3600 seconds
+            const SECONDS_PER_HOUR = 3600;
+
+            // Convert Integral Time (Ti) from seconds to hours
+            const Ti_hr_scivario = Ti_sec_dasgip / SECONDS_PER_HOUR;
+
+            // Calculate the Integral Gain (Ki) for Scivario: Ki = Kp / Ti
+            let Ki_scivario = 0;
+            if (Ti_hr_scivario !== 0) {
+                Ki_scivario = Kp_dasgip / Ti_hr_scivario;
+            }
+
+            // Kd is 0 based on the provided examples
+            const Kd_scivario = 0;
+
+            return {
+                Kp: Kp_dasgip,
+                Ki: Ki_scivario,
+                Kd: Kd_scivario
+            };
+        }
+
+        // Function to handle the form submission and display results
+        function calculateConversion() {
+            const Kp_input = document.getElementById('Kp_dasgip').value;
+            const Ti_input = document.getElementById('Ti_dasgip').value;
+
+            // Convert input strings to numbers
+            const Kp = parseFloat(Kp_input);
+            const Ti_sec = parseFloat(Ti_input);
+
+            // Basic input validation
+            if (isNaN(Kp) || isNaN(Ti_sec) || Kp < 0 || Ti_sec < 0) {
+                document.getElementById('results').innerHTML = '<p class="error">🚨 Please enter valid, non-negative numbers for Kp and Ti.</p>';
+                return;
+            }
+
+            // Perform the conversion
+            const result = convertDasgipToScivario(Kp, Ti_sec);
+
+            // Format the output
+            const output = `
+                <h4 class="result-heading">Equivalent Scivario Settings:</h4>
+                <p><strong>Kp:</strong> ${result.Kp.toFixed(4)}</p>
+                <p><strong>Ki:</strong> ${result.Ki.toFixed(4)} hr⁻¹</p>
+                <p><strong>Kd:</strong> ${result.Kd.toFixed(4)}</p>
+                <hr>
+                <p class="note"><em>(Ki is calculated as Kp / (Ti / 3600))</em></p>
+            `;
+
+            document.getElementById('results').innerHTML = output;
+        }
+
+        // Run calculation with default values on load
+        document.addEventListener('DOMContentLoaded', calculateConversion);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,198 @@
+/* src/App.css */
+
+body {
+  background: #f3f6fa;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #fff;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  border-radius: 18px;
+  padding: 30px 40px;
+  margin-bottom: 30px;
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #2a3b4c;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2a3b4c;
+  margin: 25px 0 15px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e3eaf2;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  font-weight: 600;
+  color: #2a3b4c;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.form-field input,
+.form-field select {
+  padding: 8px 12px;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #f8fafc;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+/* Hide Spinners on Number Inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.pump-config {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.pump-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #f8fafc;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
+  border: 1px solid #e0e6ed;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+th {
+  background: #e3eaf2;
+  color: #2a3b4c;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Specific Table Column Styling */
+table tbody td:first-child {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+table tbody td:nth-child(2),
+table tbody td:nth-child(3),
+table tbody td:nth-child(4) {
+  text-align: left;
+  padding-left: 20px;
+  position: relative;
+}
+
+table td input[type="number"] {
+  width: 90px;
+  border: 1px solid #7a7a7a;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.plus24-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  border: 1px solid #0e1d36;
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.plus24-btn:hover {
+  background: #2563eb;
+}
+
+.plus24-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.submit-btn {
+  display: block;
+  margin: 30px auto;
+  padding: 12px 48px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+}
+
+.submit-btn:hover {
+  background: #2563eb;
+}
+
+.help-text {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.card-footer {
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e6ed;
+}
