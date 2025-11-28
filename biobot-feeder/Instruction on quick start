@@ -1,0 +1,20 @@
+# Biobot Feeder App - Quick Start Guide
+
+Instructions to get the app running again after a restart or closing VS Code.
+
+## 1. Open the Project
+1. Open **VS Code**.
+2. Go to **File > Open Folder...**
+3. Navigate to and select your **`biobot-feeder`** folder.
+
+## 2. Open the Terminal
+1. If the terminal isn't visible, press **`Ctrl + ~`** (the tilde key next to 1).
+2. **Check your path:** Ensure the command line ends in `.../biobot-feeder`.
+
+## 3. Start the Server
+Type this command and hit **Enter**:
+
+```bash
+npm run dev
+
+http://localhost:5173

@@ -16,6 +16,9 @@ const App = () => {
     glucosePump: 'E', glucoseFCal: 28, glucoseFlowRate: 160
   });
 
+  // State for the new Calculator Feature
+  const [inoculationStart, setInoculationStart] = useState('');
+
   // Default Schedule Data
   const defaultTimes = [24,48,72,96,120,144,168,192,216,240,264,288,312,336];
   const defaultFeedA = [0,45,0,90,0,120,0,150,0,150,0,0,0,0];
@@ -49,6 +52,25 @@ const App = () => {
     const newSchedule = [...schedule];
     newSchedule[index].time = (isNaN(prevTime) ? 0 : prevTime) + 24;
     setSchedule(newSchedule);
+  };
+
+  // --- CALCULATOR HELPER ---
+  const calculateFeedDate = (hoursToAdd: number) => {
+    // If user hasn't picked a time or the hour is invalid, return dashes
+    if (!inoculationStart || isNaN(hoursToAdd)) return '---';
+    
+    const date = new Date(inoculationStart);
+    // Add hours (hours * 60 minutes * 60 seconds * 1000 milliseconds)
+    date.setTime(date.getTime() + (hoursToAdd * 60 * 60 * 1000));
+    
+    // Format the date to look nice (Day, Date, Time)
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'numeric', 
+      day: 'numeric', 
+      hour: 'numeric', 
+      minute: '2-digit' 
+    });
   };
 
   const downloadScript = () => {
@@ -104,6 +126,7 @@ const App = () => {
         {/* Pump Configuration */}
         <div className="section-title">Pump Configuration</div>
         
+
         {/* Feed A */}
         <div className="pump-config">
           <div style={{ fontWeight: 600, marginBottom: '10px' }}>Feed A (Major Feed) - Gravimetric</div>
@@ -170,6 +193,44 @@ const App = () => {
 
         {/* Schedule */}
         <div className="section-title">Feed Schedule</div>
+        {/* --- CALCULATOR SECTION --- */}
+        <div style={{ background: '#e0f2fe', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #bae6fd' }}>
+          <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#0369a1', marginBottom: '10px' }}>
+            📅 Feed Time Calculator
+          </div>
+          
+          <span className="help-text">If exact feed time isn't required, recommend Setting Feeds Events to occur early in the morning, with the <b>Sample Conf Extension</b> set between 8-12 hours.
+          <br />This will give user all day to sample for glucose before daily feeds are automatically added</span>
+          
+          
+          <div className="form-grid">
+            <div className="form-field">
+              <label style={{color: '#0369a1'}}>Est. Inoculation Time:</label>
+              <input 
+                type="datetime-local" 
+                value={inoculationStart}
+                onChange={(e) => setInoculationStart(e.target.value)}
+                style={{ borderColor: '#0369a1' }}
+              />
+            </div>
+            {/* Preview for Feed #1 */}
+            <div className="form-field">
+              <label style={{color: '#0369a1'}}>Feed #01 ({schedule[0].time}h) will occur at:</label>
+              <div style={{ padding: '8px', background: 'white', borderRadius: '6px', border: '1px solid #bae6fd'}}>
+                {calculateFeedDate(schedule[0].time)}
+              </div>
+            </div>
+            {/* Preview for Feed #2 */}
+            <div className="form-field">
+              <label style={{color: '#0369a1'}}>Feed #02 ({schedule[1].time}h) will occur at:</label>
+              <div style={{ padding: '8px', background: 'white', borderRadius: '6px', border: '1px solid #bae6fd'}}>
+                {calculateFeedDate(schedule[1].time)}
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* --- END CALCULATOR SECTION --- */}
+
         <span className="help-text">Feed event = 1.Feed_B 2.Feed_A 3.Glucose (if requested).
           <br /> Times are in hours after inoculation, leave extra feed times after last feed as is.
           <br /> Save to script repository once generated to access from other stations.</span>
